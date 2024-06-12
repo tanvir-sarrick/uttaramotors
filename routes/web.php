@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PDFController;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /*
@@ -19,13 +20,17 @@ Route::get('/', function () {
 });
 
 Route::get('/qrcode', function () {
-
     return QrCode::size(300)->generate('A basic example of QR code!');
 });
 
 
 Route::get('/qrcode-email', function() {
-
      return QrCode::size(500)
                  ->email('hardik@itsolutionstuff.com', 'Welcome to ItSolutionStuff.com!', 'This is !.');
  });
+
+
+
+// Single Qr Code
+ Route::get('singleqrcode-pdf', [PDFController::class, 'singleqecodePDF']);
+
