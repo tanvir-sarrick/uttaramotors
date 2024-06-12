@@ -45,4 +45,51 @@ class PDFController extends Controller
         return response($dompdf->output())->header('Content-Type', 'application/pdf');
     }
 
+
+
+
+    public function multipleqrcodePDF()
+    {
+        // Fetch data from the API
+        $response = Http::get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+        $data = $response->json();
+
+        // Initialize an array to store QR code image data
+        $qrCodes = [];
+
+        // Generate QR codes for each data entry
+        foreach ($data as $entry) {
+            // Generate the QR code image
+            $qrCode = QrCode::size(70)->generate($entry['title']);
+
+            // Store QR code image data in the array
+            $qrCodes[] = [
+                'id' => $entry['id'],
+                'title' => $entry['title'],
+                'qrCode' => $qrCode,
+            ];
+        }
+
+        // Pass the QR codes data to the Blade view
+        $viewData['qrCodes'] = $qrCodes;
+
+        // Render the Blade view to generate the HTML content
+        $html = view('multipleqrcodePDF', $viewData)->render();
+
+        // Initialize Dompdf
+        $dompdf = new Dompdf();
+
+        // Load HTML content
+        $dompdf->loadHtml($html);
+
+        // Set paper size and orientation
+        $dompdf->setPaper([0, 0, 165, 300], 'landscape');
+
+        // Render the HTML as PDF
+        $dompdf->render();
+
+        // Output the generated PDF
+        return response($dompdf->output())->header('Content-Type', 'application/pdf');
+    }
+
 }

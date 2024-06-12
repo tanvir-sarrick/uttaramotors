@@ -34,3 +34,7 @@ Route::get('/qrcode-email', function() {
 // Single Qr Code
  Route::get('singleqrcode-pdf', [PDFController::class, 'singleqecodePDF']);
 
+// Multiple QRCode
+ Route::get('multipleqrcode-pdf', [PDFController::class, 'multipleqrcodePDF']);
+
+
