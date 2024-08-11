@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PDFController;
+use App\Http\Controllers\BarCodeController;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /*
@@ -37,4 +38,14 @@ Route::get('/qrcode-email', function() {
 // Multiple QRCode
  Route::get('multipleqrcode-pdf', [PDFController::class, 'multipleqrcodePDF']);
 
+// Single Barcode
+Route::get('/generate-qr', [BarCodeController::class, 'singleBarCode']);
 
+
+Route::get('barcode', function () {
+
+    $generatorPNG = new Picqer\Barcode\BarcodeGeneratorPNG();
+    $image = $generatorPNG->getBarcode('www.globalinformatics.com.bd/', $generatorPNG::TYPE_CODE_128);
+
+    return response($image)->header('Content-type','image/png');
+});

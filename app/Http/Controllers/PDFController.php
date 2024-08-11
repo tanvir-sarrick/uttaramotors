@@ -52,15 +52,27 @@ class PDFController extends Controller
     {
         // Fetch data from the API
         $response = Http::get('https://jsonplaceholder.typicode.com/posts?_limit=10');
+
+
+        //$response = Http::get('https://api.escuelajs.co/api/v1/products');
+
+
         $data = $response->json();
 
+        // Get the first 10 items from the data array
+        //$firstTenItems = array_slice($data, 0, 10);
+        //dd($firstTenItems);
         // Initialize an array to store QR code image data
+        $firstTenItems = collect($data)->take(10);
+
+
         $qrCodes = [];
 
         // Generate QR codes for each data entry
-        foreach ($data as $entry) {
+        foreach ($firstTenItems as $entry) {
+            $url = 'https://globalinformatics.com.bd/';
             // Generate the QR code image
-            $qrCode = QrCode::size(70)->generate($entry['title']);
+            $qrCode = QrCode::size(70)->generate($url . $entry['id']);
 
             // Store QR code image data in the array
             $qrCodes[] = [
