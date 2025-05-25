@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\BarCodeController;
+use App\Http\Controllers\InvoiceController;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /*
@@ -49,3 +50,7 @@ Route::get('barcode', function () {
 
     return response($image)->header('Content-type','image/png');
 });
+
+//Invoice Import
+Route::get('invoices', [InvoiceController::class, 'manage']);
+Route::post('invoices-import', [InvoiceController::class, 'import'])->name('invoices.import');
