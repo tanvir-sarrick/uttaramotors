@@ -1,7 +1,6 @@
 @extends('backend.layout.template')
-@section('title', 'Users')
-@section('user', 'active')
-@section('active_open', 'active open')
+@section('title', 'Permission')
+@section('permission', 'active')
 @section('style')
 <link rel="stylesheet" href="{{ asset('backend/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css') }}">
 <link rel="stylesheet" href="{{ asset('backend/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css') }}">
@@ -9,7 +8,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <style>
+    .custom {
+        text-transform: capitalize;
+    }
 
+    .permission {
+        font-size: 12px;
+        line-height: 20px;
+    }
 </style>
 @endsection
 @section('content')
@@ -22,9 +28,14 @@
                     </div>
                     <div class="d-flex justify-content-start justify-content-md-end align-items-baseline">
                         <div class="dt-action-buttons d-flex flex-column align-items-start align-items-sm-center justify-content-sm-center pt-0 gap-sm-4 gap-sm-0 flex-sm-row">
+                            <div class="dataTables_length mx-n2" id="DataTables_Table_0_length">
+                                <label>
+                                    <input type="text" class="form-control" placeholder="Search">
+                                </label>
+                            </div>
                             <div class="dt-buttons btn-group flex-wrap d-flex mb-6 mb-sm-0">
-                                <button id="createUserBtn" class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light" type="button">
-                                    <span><i class="ti ti-plus me-1 ti-xs"></i>Create User</span>
+                                <button id="createMailerServerBtn" class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light" type="button">
+                                    <span><i class="ti ti-plus me-1 ti-xs"></i>Create Permission</span>
                                 </button>
                             </div>
                         </div>
@@ -41,7 +52,7 @@
                         </div>
                     </div>
                 @endif
-                    @include('backend.pages.user.showUserList')
+                    @include('backend.pages.permission.showPermissionList')
                 </div>
             </div>
         </div>
@@ -56,9 +67,9 @@
         $(document).ready(function() {
             // Track the current page globally
             let currentPage = 1;
-            $('#createUserBtn').click(function (e) {
+            $('#createMailerServerBtn').click(function (e) {
                 e.preventDefault();
-                var downloadUrl = "{{ route('dashboard.user.create') }}";
+                var downloadUrl = "{{ route('dashboard.permission.create') }}";
                 // Redirect to the download URL
                 window.location.href = downloadUrl;
             });
@@ -82,10 +93,10 @@
                             type: "GET",
                             success: function(response) {
                                 if (response.status === 'success') {
-                                    Swal.fire("Deleted!", response.message, "success");
+                                    Swal.fire("Suspended!", response.message, "success");
                                     window.location.href = response.url;
                                 } else {
-                                    Swal.fire("Deleted!", response.message, "warning");
+                                    Swal.fire("Suspended!", response.message, "warning");
                                 }
                                 // Reload the current page after suspension
                                 //window.location.reload();

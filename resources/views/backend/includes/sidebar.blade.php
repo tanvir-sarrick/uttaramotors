@@ -1,3 +1,6 @@
+@php
+    $usr = Auth::guard('web')->user();
+@endphp
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo ">
         <a href="{{ route('dashboard.index') }}" class="app-brand-link">
@@ -80,14 +83,56 @@
       </li>
 
         <div style="margin-top: 50px;height: 3px;background: #988ff4;width: 100%;"></div>
-        <li class="menu-item" @yield('settings')>
+        {{-- <li class="menu-item" @yield('settings')>
             <a href="" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-settings"></i>
                 <div data-i18n="Settings">Settings</div>
             </a>
+        </li> --}}
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons ti ti-settings"></i>
+                <div data-i18n="Settings">Settings</div>
+            </a>
+            <ul class="menu-sub">
+              <li class="menu-item @yield('active_open')">
+                <a href="" class="menu-link">
+                    <div data-i18n="Website Setting">Website Setting</div>
+                </a>
+              </li>
+              @if ( $usr->can('user.manage') )
+              <li class="menu-item @yield('user')">
+                <a href="{{ route('dashboard.user.index') }}" class="menu-link">
+                    <div data-i18n="Users">Users</div>
+                </a>
+              </li>
+              @endif
+            </ul>
         </li>
-
-
+        @if ( $usr->can('permission.manage') || $usr->can('role.manage'))
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons ti ti-settings"></i>
+                <div data-i18n="Role & Permission">Role & Permission</div>
+            </a>
+            <ul class="menu-sub">
+                @if ( $usr->can('permission.manage') )
+                    <li class="menu-item">
+                        <a href="{{ route('dashboard.permission.index') }}" class="menu-link">
+                            <div data-i18n="Manage Permission">Manage Permission</div>
+                        </a>
+                    </li>
+                @endif
+                @if ( $usr->can('role.manage') )
+                    <li class="menu-item">
+                        <a href="{{ route('dashboard.role.index') }}" class="menu-link">
+                            <div data-i18n="Manage Role">Manage Role</div>
+                        </a>
+                    </li>
+                @endif
+            </ul>
+        </li>
+        @endif
     </ul>
 
 

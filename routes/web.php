@@ -7,7 +7,10 @@ use App\Http\Controllers\BarCodeController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Http\Controllers\Backend\RoleController;
+use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\DashboardController;
+use App\Http\Controllers\Backend\PermissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,8 +70,41 @@ Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
     Route::prefix('Home/')->name('dashboard.')->controller(DashboardController::class)->group(
         function () {
             Route::get('/', 'index')->name('index');
+
+            //Role Controller
+            Route::prefix('/Role')->controller(RoleController::class)->name('role.')->group(function () {
+                Route::get('/Index', 'index')->name('index');
+                Route::get('/Create', 'create')->name('create');
+                Route::post('/Store', 'store')->name('store');
+                Route::get('/{id}/Edit', 'edit')->name('edit');
+                Route::post('/{id}/Update', 'update')->name('update');
+                Route::post('/{id}/Delete', 'destroy')->name('destroy');
+                Route::post('/loadMoreRole', 'loadMoreRole')->name('loadMoreRole');
+            });
+            //Permission Controller
+            Route::prefix('/Permission')->controller(PermissionController::class)->name('permission.')->group(function () {
+                Route::get('/Index', 'index')->name('index');
+                Route::get('/Create', 'create')->name('create');
+                Route::post('/Store', 'store')->name('store');
+                Route::get('/{id}/Edit', 'edit')->name('edit');
+                Route::post('/{id}/Update', 'update')->name('update');
+                Route::get('/{id}/Delete', 'destroy')->name('destroy');
+                Route::post('/loadMorePermission', 'loadMorePermission')->name('loadMorePermission');
+            });
+            // User Route
+            Route::prefix('/User')->controller(UserController::class)->name('user.')->group(function () {
+                Route::get('/Index', 'index')->name('index');
+                Route::get('/Create', 'create')->name('create');
+                Route::post('/Store', 'store')->name('store');
+                Route::get('/{id}/Edit', 'edit')->name('edit');
+                Route::post('/{id}/Update', 'update')->name('update');
+                Route::get('/{id}/Delete', 'destroy')->name('suspend');
+                Route::post('/loadMoreItem', 'loadMoreItem')->name('loadMoreItem');
+            });
         }
     );
+
+
 });
 
 Route::get('/dashboard', function () {
