@@ -22,12 +22,12 @@ class RoleController extends Controller
 
             $all_roles = $all_roles->paginate(2);
 
-            if($request->ajax()){
+            if ($request->ajax()) {
                 $data = view('backend.pages.role.showRoleList', compact('all_roles'))->render();
                 return response()->json(['data' => $data]);
             }
 
-            return view('backend.pages.role.index',compact('all_roles'));
+            return view('backend.pages.role.index', compact('all_roles'));
         } catch (\Exception $th) {
             return response()->json([
                 'atert_type' => 'error',
@@ -36,7 +36,8 @@ class RoleController extends Controller
         }
     }
 
-    public function create(){
+    public function create()
+    {
         if (!Auth::user()->can('user.create')) {
             return abort(403, 'Unauthorized');
         }
@@ -56,7 +57,7 @@ class RoleController extends Controller
         // Validation Data
         $validate = $request->validate(
             [
-                'name'      =>'required|max:100|unique:roles',
+                'name'      => 'required|max:100|unique:roles',
             ],
             [
                 'name.required' => "Please Enter Role Name.",
@@ -67,7 +68,7 @@ class RoleController extends Controller
         $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
 
         $permissions = $request->input('permissions');
-        if( !empty($permissions) ){
+        if (!empty($permissions)) {
             $role->syncPermissions($permissions);
         }
         //return back();
@@ -82,13 +83,12 @@ class RoleController extends Controller
 
         $role = Role::find($id);
 
-        if( !is_null($role) ){
+        if (!is_null($role)) {
             $all_permissions = Permission::all();
             $permission_groups = User::getpermissionGroups();
 
-            return view('backend.pages.role.edit', compact('role','all_permissions','permission_groups'));
+            return view('backend.pages.role.edit', compact('role', 'all_permissions', 'permission_groups'));
         }
-
     }
 
     public function update(Request $request, $id)
@@ -99,7 +99,7 @@ class RoleController extends Controller
         // Validation Data
         $validate = $request->validate(
             [
-                'name'      =>'required|max:100|unique:roles,name,'.$id,
+                'name'      => 'required|max:100|unique:roles,name,' . $id,
             ],
             [
                 'name.required' => "Please Enter Role Name.",
@@ -111,7 +111,7 @@ class RoleController extends Controller
         $role = Role::find($id);
 
         $permissions = $request->input('permissions');
-        if( !empty($permissions) ){
+        if (!empty($permissions)) {
             $role->name = $request->name;
             $role->guard_name = 'web';
             $role->save();

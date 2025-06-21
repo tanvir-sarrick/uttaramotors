@@ -3,67 +3,86 @@
 namespace App\Imports;
 
 use App\Models\Invoice;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
-class InvoicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure
+class InvoicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, SkipsEmptyRows, WithEvents
 {
     use SkipsFailures;
-    /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
+
+    protected $totalRows;
+    protected $currentRow = 0;
 
     public function __construct()
     {
-        HeadingRowFormatter::default('none'); // ⚠️ Use headers exactly as in Excel
+        HeadingRowFormatter::default('none'); // Match exact Excel headers
     }
+
+    public static function beforeImport(BeforeImport $event)
+    {
+        // Get total rows from the sheet
+        $instance = $event->getConcernable();
+        $instance->totalRows = $event->getReader()->getDelegate()->getActiveSheet()->getHighestRow();
+    }
+
+    // public function model(array $row)
+    // {
+    //     $this->currentRow++;
+
+    //     // Skip last row
+    //     if ($this->currentRow >= $this->totalRows) {
+    //         return null;
+    //     }
+
+    //     return new Invoice([
+    //         'sl_no'       => (int) $row['Sl. No.'],
+    //         'brand'       => (string) $row['Brand'],
+    //         'part_id'     => (string) $row['Part Id'],
+    //         'description' => (string) $row['Descripion'], // typo matches Excel header
+    //         'qty'         => (int) $row['Qty'],
+    //         'rate'        => (float) $row['Rate'],
+    //         'amount'      => (float) $row['Amount'],
+    //     ]);
+    // }
 
     public function model(array $row)
     {
-        // dd($row);
+        // Skip if all cells are blank
+        if (collect($row)->filter()->isEmpty()) {
+            return null;
+        }
+
+        // Skip known footer/summary row: e.g., if Part Id or Qty is missing
+        // Skip row if any known footer pattern is detected
+        if (
+            strtolower(trim($row['Sl. No.'])) === 'total'
+        ) {
+            return null;
+        }
+
         return new Invoice([
-            // 'sl_no'      => (int) $row[0],
-            // 'brand'      => $row[1],
-            // 'part_id'    => $row[2],
-            // 'description'=> $row[3], // typo in original header!
-            // 'qty'        => (int) $row[4],
-            // 'rate'       => (float) $row[5],
-            // 'amount'     => (float) $row[6],
-
-
             'sl_no'       => (int) $row['Sl. No.'],
             'brand'       => (string) $row['Brand'],
             'part_id'     => (string) $row['Part Id'],
-            'description' => (string) $row['Descripion'], // typo matches Excel header
+            'description' => (string) $row['Descripion'], // typo matches Excel
             'qty'         => (int) $row['Qty'],
             'rate'        => (float) $row['Rate'],
             'amount'      => (float) $row['Amount'],
         ]);
     }
 
-    //old
-    // public function rules(): array
-    // {
-    //     return [
-    //         '*.sl_no'       => 'required|string',
-    //         '*.brand'       => 'required|string|max:255',
-    //         '*.part_id'     => 'required|string|max:255',
-    //         '*.descripion'  => 'nullable|string',
-    //         '*.qty'         => 'required|integer|min:1',
-    //         '*.rate'        => 'required|numeric|min:0',
-    //         '*.amount'      => 'required|numeric|min:0',
-    //     ];
-    // }
+
     public function rules(): array
     {
         return [
-            // '*.Sl. No.'     => 'required|integer',
             '*.Brand'       => 'required|string|max:255',
             '*.Part Id'     => 'required|string|max:255',
             '*.Descripion'  => 'nullable|string',
@@ -73,23 +92,9 @@ class InvoicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
         ];
     }
 
-
-    //old
-    // public function customValidationMessages()
-    // {
-    //     return [
-    //         '*.sl_no.required'      => 'Sl. No. is required.',
-    //         '*.brand.required'      => 'Brand is required.',
-    //         '*.part_id.required'    => 'Part Id is required.',
-    //         '*.qty.required'        => 'Quantity is required and must be greater than 0.',
-    //         '*.rate.required'       => 'Rate is required and must be a number.',
-    //         '*.amount.required'     => 'Amount is required and must be a number.',
-    //     ];
-    // }
     public function customValidationMessages()
     {
         return [
-            '*.Sl. No..required'     => 'Sl. No. is required.',
             '*.Brand.required'       => 'Brand is required.',
             '*.Part Id.required'     => 'Part ID is required.',
             '*.Qty.required'         => 'Quantity is required and must be greater than 0.',
@@ -98,4 +103,10 @@ class InvoicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOn
         ];
     }
 
+    public function registerEvents(): array
+    {
+        return [
+            BeforeImport::class => [self::class, 'beforeImport'],
+        ];
+    }
 }

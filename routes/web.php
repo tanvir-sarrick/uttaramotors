@@ -4,14 +4,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\BarCodeController;
-use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\PermissionController;
-
+use App\Http\Controllers\Backend\InvoiceController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,18 +34,18 @@ Route::get('/qrcode', function () {
 });
 
 
-Route::get('/qrcode-email', function() {
-     return QrCode::size(500)
-                 ->email('hardik@itsolutionstuff.com', 'Welcome to ItSolutionStuff.com!', 'This is !.');
- });
+Route::get('/qrcode-email', function () {
+    return QrCode::size(500)
+        ->email('hardik@itsolutionstuff.com', 'Welcome to ItSolutionStuff.com!', 'This is !.');
+});
 
 
 
 // Single Qr Code
- Route::get('singleqrcode-pdf', [PDFController::class, 'singleqecodePDF']);
+Route::get('singleqrcode-pdf', [PDFController::class, 'singleqecodePDF']);
 
 // Multiple QRCode
- Route::get('multipleqrcode-pdf', [PDFController::class, 'multipleqrcodePDF']);
+Route::get('multipleqrcode-pdf', [PDFController::class, 'multipleqrcodePDF']);
 
 // Single Barcode
 Route::get('/generate-qr', [BarCodeController::class, 'singleBarCode']);
@@ -56,7 +55,6 @@ Route::get('barcode', function () {
 
     $generatorPNG = new Picqer\Barcode\BarcodeGeneratorPNG();
     $image = $generatorPNG->getBarcode('www.globalinformatics.com.bd/', $generatorPNG::TYPE_CODE_128);
-
 });
 
 
@@ -101,10 +99,15 @@ Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
                 Route::get('/{id}/Delete', 'destroy')->name('suspend');
                 Route::post('/loadMoreItem', 'loadMoreItem')->name('loadMoreItem');
             });
+
+            //Invoice Route
+            Route::prefix('/Invoice')->controller(InvoiceController::class)->name('invoice.')->group(function () {
+                Route::get('/Index', 'index')->name('index');
+                Route::get('/Create', 'create')->name('create');
+                Route::post('/Store', 'store')->name('store');
+            });
         }
     );
-
-
 });
 
 Route::get('/dashboard', function () {
@@ -117,4 +120,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

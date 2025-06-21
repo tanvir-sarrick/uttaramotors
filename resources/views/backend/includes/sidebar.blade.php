@@ -11,7 +11,8 @@
                 <path opacity="0.06" fill-rule="evenodd" clip-rule="evenodd" d="M8.07751 15.9175L13.9419 4.63989L16.5849 7.28475L8.07751 15.9175Z" fill="#161616"></path>
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M7.77295 16.3566L23.6563 0H32V6.88383C32 6.88383 31.8262 9.17836 30.6591 10.4057L19.7824 22H13.6938L7.77295 16.3566Z" fill="#7367F0"></path>
                 </svg> --}}
-                <img src="{{ asset('backend/assets/img/uttara_logo_bgwhite.png') }}" alt="" style="height: 85px;width: 140px;">
+                <img src="{{ asset('backend/assets/img/uttara_logo_bgwhite.png') }}" alt=""
+                    style="height: 85px;width: 140px;">
             </span>
             {{-- <span class="app-brand-text demo menu-text fw-bold">Vuexy</span> --}}
         </a>
@@ -27,60 +28,60 @@
 
 
     <ul class="menu-inner py-1">
-      <!-- Dashboards -->
-      <li class="menu-item @yield('home')">
-        <a href="{{ route('dashboard.index') }}" class="menu-link">
-          <i class="menu-icon tf-icons ti ti-smart-home"></i>
-          <div data-i18n="Dashboards">Dashboard</div>
-        </a>
-      </li>
+        <!-- Dashboards -->
+        <li class="menu-item @yield('home')">
+            <a href="{{ route('dashboard.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons ti ti-smart-home"></i>
+                <div data-i18n="Dashboards">Dashboard</div>
+            </a>
+        </li>
 
-      <!-- Front Pages -->
-      <li class="menu-item">
-        <a href="javascript:void(0);" class="menu-link menu-toggle">
-          <i class='menu-icon tf-icons ti ti-files'></i>
-          <div data-i18n="Blogs">Blogs</div>
-        </a>
-        <ul class="menu-sub">
-          <li class="menu-item">
-            <a href="../front-pages/landing-page.html" class="menu-link" target="_blank">
-              <div data-i18n="Manage Blog">Manage Blog</div>
+        <!-- Front Pages -->
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class='menu-icon tf-icons ti ti-files'></i>
+                <div data-i18n="Blogs">Blogs</div>
             </a>
-          </li>
-          <li class="menu-item">
-            <a href="../front-pages/pricing-page.html" class="menu-link" target="_blank">
-              <div data-i18n="Create Blog">Create Blog</div>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a href="../front-pages/pricing-page.html" class="menu-link" target="_blank">
-              <div data-i18n="All Categories">All Categories</div>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a href="../front-pages/pricing-page.html" class="menu-link" target="_blank">
-              <div data-i18n="All Sub Categories">All Sub Categories</div>
-            </a>
-          </li>
-          <li class="menu-item">
-            <a href="../front-pages/pricing-page.html" class="menu-link" target="_blank">
-              <div data-i18n="All Tags">All Tags</div>
-            </a>
-          </li>
-        </ul>
-      </li>
+            <ul class="menu-sub">
+                <li class="menu-item">
+                    <a href="../front-pages/landing-page.html" class="menu-link" target="_blank">
+                        <div data-i18n="Manage Blog">Manage Blog</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="../front-pages/pricing-page.html" class="menu-link" target="_blank">
+                        <div data-i18n="Create Blog">Create Blog</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="../front-pages/pricing-page.html" class="menu-link" target="_blank">
+                        <div data-i18n="All Categories">All Categories</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="../front-pages/pricing-page.html" class="menu-link" target="_blank">
+                        <div data-i18n="All Sub Categories">All Sub Categories</div>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="../front-pages/pricing-page.html" class="menu-link" target="_blank">
+                        <div data-i18n="All Tags">All Tags</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
 
-      <!-- Apps & Pages -->
-      <li class="menu-header small">
+        <!-- Apps & Pages -->
+        <li class="menu-header small">
             <span class="menu-header-text" data-i18n="Apps & Pages">Apps &amp; Pages</span>
-      </li>
-      <li class="menu-item @yield('users')">
-        <a href="" class="menu-link">
-            <i class="menu-icon tf-icons ti ti-users"></i>
-            <div data-i18n="Users">Users</div>
-        </a>
-      </li>
+        </li>
+        <li class="menu-item @yield('invoice')">
+            <a href="{{ route('dashboard.invoice.index') }}" class="menu-link">
+                <i class=" menu-icon tf-icons ti ti-file-import"></i>
+                <div data-i18n="Invoice Import">Invoice Import</div>
+            </a>
+        </li>
 
         <div style="margin-top: 50px;height: 3px;background: #988ff4;width: 100%;"></div>
         {{-- <li class="menu-item" @yield('settings')>
@@ -95,46 +96,47 @@
                 <div data-i18n="Settings">Settings</div>
             </a>
             <ul class="menu-sub">
-              <li class="menu-item @yield('active_open')">
-                <a href="" class="menu-link">
-                    <div data-i18n="Website Setting">Website Setting</div>
-                </a>
-              </li>
-              @if ( $usr->can('user.manage') )
-              <li class="menu-item @yield('user')">
-                <a href="{{ route('dashboard.user.index') }}" class="menu-link">
-                    <div data-i18n="Users">Users</div>
-                </a>
-              </li>
-              @endif
-            </ul>
-        </li>
-        @if ( $usr->can('permission.manage') || $usr->can('role.manage'))
-        <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons ti ti-settings"></i>
-                <div data-i18n="Role & Permission">Role & Permission</div>
-            </a>
-            <ul class="menu-sub">
-                @if ( $usr->can('permission.manage') )
-                    <li class="menu-item">
-                        <a href="{{ route('dashboard.permission.index') }}" class="menu-link">
-                            <div data-i18n="Manage Permission">Manage Permission</div>
-                        </a>
-                    </li>
-                @endif
-                @if ( $usr->can('role.manage') )
-                    <li class="menu-item">
-                        <a href="{{ route('dashboard.role.index') }}" class="menu-link">
-                            <div data-i18n="Manage Role">Manage Role</div>
+                <li class="menu-item @yield('active_open')">
+                    <a href="" class="menu-link">
+                        <div data-i18n="Website Setting">Website Setting</div>
+                    </a>
+                </li>
+                @if ($usr->can('user.manage'))
+                    <li class="menu-item @yield('user')">
+                        <a href="{{ route('dashboard.user.index') }}" class="menu-link">
+                            <div data-i18n="Users">Users</div>
                         </a>
                     </li>
                 @endif
             </ul>
         </li>
+        @if ($usr->can('permission.manage') || $usr->can('role.manage'))
+            <li class="menu-item">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons ti ti-adjustments-cog"></i>
+
+                    <div data-i18n="Role & Permission">Role & Permission</div>
+                </a>
+                <ul class="menu-sub">
+                    @if ($usr->can('permission.manage'))
+                        <li class="menu-item">
+                            <a href="{{ route('dashboard.permission.index') }}" class="menu-link">
+                                <div data-i18n="Manage Permission">Manage Permission</div>
+                            </a>
+                        </li>
+                    @endif
+                    @if ($usr->can('role.manage'))
+                        <li class="menu-item">
+                            <a href="{{ route('dashboard.role.index') }}" class="menu-link">
+                                <div data-i18n="Manage Role">Manage Role</div>
+                            </a>
+                        </li>
+                    @endif
+                </ul>
+            </li>
         @endif
     </ul>
 
 
 
-  </aside>
+</aside>
