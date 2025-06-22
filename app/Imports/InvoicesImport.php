@@ -12,17 +12,14 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
-class InvoicesImport implements
-    ToCollection,
-    WithHeadingRow,
-    WithValidation,
-    SkipsEmptyRows,
-    WithEvents
+class InvoicesImport implements ToCollection, WithHeadingRow, WithValidation, SkipsEmptyRows, WithEvents
 {
     protected array $rows = [];
+    protected string $invoiceNumber;
 
-    public function __construct()
+    public function __construct(string $invoiceNumber)
     {
+        $this->invoiceNumber = $invoiceNumber;
         // Preserve original header casing (no formatting)
         HeadingRowFormatter::default('none');
     }
@@ -134,6 +131,7 @@ class InvoicesImport implements
 
             Invoice::create([
                 'sl_no'       => (int) $row['Sl. No.'],
+                'invoice_number'=> $this->invoiceNumber,
                 'brand'       => (string) $row['Brand'],
                 'part_id'     => (string) $row['Part Id'],
                 'description' => (string) $row['Descripion'],

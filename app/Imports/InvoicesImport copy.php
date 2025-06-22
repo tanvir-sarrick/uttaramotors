@@ -4,47 +4,50 @@ namespace App\Imports;
 
 use App\Models\Invoice;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
-class InvoicesImport implements ToCollection, WithHeadingRow, WithValidation, SkipsOnFailure, SkipsEmptyRows, WithEvents
+class InvoicesImport implements ToCollection, WithHeadingRow, WithValidation, SkipsEmptyRows, WithEvents
 {
-    use SkipsFailures;
-
     protected array $rows = [];
-    protected array $rawData = [];
 
     public function __construct()
     {
+        // Preserve original header casing (no formatting)
         HeadingRowFormatter::default('none');
     }
 
     public static function beforeImport(BeforeImport $event)
     {
-        //
+        // Optional: code before import starts
     }
 
+    /**
+     * Remove empty and summary ("total") rows before validation.
+     */
     public function prepareForValidation($data, $index)
     {
-        $this->rows[$index] = $data;
+        if ($this->shouldSkipRow($data)) {
+            return []; // Empty array => row skipped by validator
+        }
+
+        $this->rows[$index] = $data; // Store for rules access
         return $data;
     }
 
+    /**
+     * Validation rules for each row.
+     */
     public function rules(): array
     {
         return [
-
             '*.Brand' => function ($attribute, $value, $fail) {
-                $row = $this->rows[explode('.', $attribute)[0]] ?? [];
-
+                $row = $this->getRow($attribute);
                 if ($this->shouldSkipRow($row)) return;
 
                 if ($value === null || $value === '') $fail('Brand is required.');
@@ -52,8 +55,7 @@ class InvoicesImport implements ToCollection, WithHeadingRow, WithValidation, Sk
             },
 
             '*.Part Id' => function ($attribute, $value, $fail) {
-                $row = $this->rows[explode('.', $attribute)[0]] ?? [];
-
+                $row = $this->getRow($attribute);
                 if ($this->shouldSkipRow($row)) return;
 
                 if ($value === null || $value === '') $fail('Part ID is required.');
@@ -61,64 +63,69 @@ class InvoicesImport implements ToCollection, WithHeadingRow, WithValidation, Sk
             },
 
             '*.Descripion' => function ($attribute, $value, $fail) {
-                $row = $this->rows[explode('.', $attribute)[0]] ?? [];
-
+                $row = $this->getRow($attribute);
                 if ($this->shouldSkipRow($row)) return;
 
-                if ($value === null || $value === '') $fail('Descripion is required.');
-                elseif (!is_string($value)) $fail('Descripion must be a string.');
+                if ($value === null || $value === '') $fail('Description is required.');
+                elseif (!is_string($value)) $fail('Description must be a string.');
             },
 
             '*.Qty' => function ($attribute, $value, $fail) {
-                $row = $this->rows[explode('.', $attribute)[0]] ?? [];
-
+                $row = $this->getRow($attribute);
                 if ($this->shouldSkipRow($row)) return;
 
                 if ($value === null || $value === '') $fail('Qty is required.');
-                elseif (!is_numeric($value) || intval($value) != $value) $fail('Qty must be an integer.');
+                elseif (!is_numeric($value) || intval($value) != $value) $fail('Qty must be an number.');
                 elseif (intval($value) <= 0) $fail('Qty must be greater than 0.');
             },
 
             '*.Rate' => function ($attribute, $value, $fail) {
-                $row = $this->rows[explode('.', $attribute)[0]] ?? [];
-
+                $row = $this->getRow($attribute);
                 if ($this->shouldSkipRow($row)) return;
 
                 if ($value === null || $value === '') $fail('Rate is required.');
                 elseif (!is_numeric($value)) $fail('Rate must be a number.');
+                elseif (intval($value) <= 0) $fail('Rate must be greater than 0.');
             },
 
             '*.Amount' => function ($attribute, $value, $fail) {
-                $row = $this->rows[explode('.', $attribute)[0]] ?? [];
-
+                $row = $this->getRow($attribute);
                 if ($this->shouldSkipRow($row)) return;
 
                 if ($value === null || $value === '') $fail('Amount is required.');
                 elseif (!is_numeric($value)) $fail('Amount must be a number.');
+                elseif (intval($value) <= 0) $fail('Amount must be greater than 0.');
             },
         ];
     }
 
+    /**
+     * Helper to get row data by attribute index.
+     */
+    private function getRow(string $attribute): array
+    {
+        $index = explode('.', $attribute)[0] ?? null;
+        return $this->rows[$index] ?? [];
+    }
+
+    /**
+     * Skip row if empty or if it's a summary "Total" row.
+     */
     private function shouldSkipRow(array $row): bool
     {
         return collect($row)->filter()->isEmpty() ||
             (isset($row['Sl. No.']) && strtolower(trim($row['Sl. No.'])) === 'total');
     }
 
-
-
+    /**
+     * This method runs only if validation passes for all rows.
+     */
     public function collection(Collection $rows)
     {
-        // Store raw data for later insertion after validation
-        $this->rawData = $rows->toArray();
-
-        // If there were failures, abort DB saving from outside the import
-        if (!empty($this->failures())) {
-            return;
-        }
-
         foreach ($rows as $row) {
-            if ($this->shouldSkipRow($row)) continue;
+            if ($this->shouldSkipRow($row->toArray())) {
+                continue;
+            }
 
             Invoice::create([
                 'sl_no'       => (int) $row['Sl. No.'],
@@ -132,6 +139,9 @@ class InvoicesImport implements ToCollection, WithHeadingRow, WithValidation, Sk
         }
     }
 
+    /**
+     * Register import events (optional).
+     */
     public function registerEvents(): array
     {
         return [

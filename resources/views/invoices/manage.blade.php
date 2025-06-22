@@ -11,28 +11,6 @@
     <div class="card mt-5">
         <h3 class="card-header p-3"><i class="fa fa-star"></i> Laravel 12 Import Export Excel to Database Example - ItSolutionStuff.com</h3>
         <div class="card-body">
-            @if(session('failures'))
-                <h3>Import Errors:</h3>
-                <ul>
-                    @foreach(session('failures') as $failure)
-                        <li>Row {{ $failure->row() }}:
-                            @foreach($failure->errors() as $error)
-                                {{ $error }}<br>
-                            @endforeach
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-
-            @if(session('import_errors'))
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach (session('import_errors') as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
             @session('success')
                 <div class="alert alert-success" role="alert">
                     {{ $value }}
@@ -52,10 +30,7 @@
 
             <form action="{{ route('invoices.import') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-
-                <input type="file" name="file" class="form-control">
-
-                <br>
+                <input type="file" name="file" class="form-control"><br>
                 <button class="btn btn-success"><i class="fa fa-file"></i> Import User Data</button>
             </form>
 
@@ -70,21 +45,19 @@
                     <th>Amount</th>
                 </tr>
                 @foreach($invoices as $user)
-                <tr>
-                    <td>{{ $user->sl_no }}</td>
-                    <td>{{ $user->brand }}</td>
-                    <td>{{ $user->part_id }}</td>
-                    <td>{{ $user->description }}</td>
-                    <td>{{ $user->qty }}</td>
-                    <td>{{ $user->rate }}</td>
-                    <td>{{ $user->amount }}</td>
-                </tr>
+                    <tr>
+                        <td>{{ $user->sl_no }}</td>
+                        <td>{{ $user->brand }}</td>
+                        <td>{{ $user->part_id }}</td>
+                        <td>{{ $user->description }}</td>
+                        <td>{{ $user->qty }}</td>
+                        <td>{{ $user->rate }}</td>
+                        <td>{{ $user->amount }}</td>
+                    </tr>
                 @endforeach
             </table>
-
         </div>
     </div>
 </div>
-
 </body>
 </html>
