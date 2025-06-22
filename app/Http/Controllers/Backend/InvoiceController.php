@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Backend;
 
 use App\Models\Invoice;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Imports\InvoicesImport;
+use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\ValidationException;
 
 class InvoiceController extends Controller
 {
@@ -17,7 +18,7 @@ class InvoiceController extends Controller
         // return view('backend.pages.invoice.index');
     }
 
-    public function import(Request $request)
+    public function import1(Request $request)
     {
         // // Validate incoming request data
         // $request->validate([
@@ -65,4 +66,68 @@ class InvoiceController extends Controller
 
         return back()->with('success', 'Invoices imported successfully!');
     }
+
+    // public function import(Request $request)
+    // {
+    //     $import = new InvoicesImport();
+    //     Excel::import($import, $request->file('file'));
+
+    //     // if ($import->failures()->isNotEmpty()) {
+    //     //     return back()->withErrors($import->failures());
+    //     // }
+    //     $failures = $import->failures();
+
+    //     if ($failures->isNotEmpty()) {
+    //         return back()->with([
+    //             'failures' => $failures,
+    //         ]);
+    //     }
+    //     $failures = $import->failures();
+
+    //     if ($failures->isNotEmpty()) {
+    //         return back()->with([
+    //             'failures' => $failures,
+    //         ]);
+    //     }
+
+    //     return back()->with('success', 'All rows imported successfully!');
+    // }
+    // public function import(Request $request)
+    // {
+    //     $import = new \App\Imports\InvoicesImport;
+
+    //     Excel::import($import, $request->file('file'));
+
+    //     if ($import->failures()->isNotEmpty()) {
+    //         $errorMessages = [];
+
+    //         foreach ($import->failures() as $failure) {
+    //             $errorMessages[] = 'Row ' . $failure->row() . ': ' . implode(', ', $failure->errors());
+    //         }
+
+    //         return back()->with('import_errors', $errorMessages);
+    //     }
+
+    //     return back()->with('success', 'Invoices imported successfully.');
+    // }
+
+    public function import(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xlsx,xls,csv',
+    ]);
+
+    try {
+        Excel::import(new InvoicesImport, $request->file('file'));
+
+        return back()->with('success', 'Invoices imported successfully.');
+    } catch (ValidationException $e) {
+        // Get all failures with row and message
+        $failures = $e->failures();
+
+        // Pass errors back to the view or handle them as you like
+        return back()->withErrors($failures)->withInput();
+    }
+}
+
 }

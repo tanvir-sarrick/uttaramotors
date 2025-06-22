@@ -23,6 +23,16 @@
                     @endforeach
                 </ul>
             @endif
+
+            @if(session('import_errors'))
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach (session('import_errors') as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             @session('success')
                 <div class="alert alert-success" role="alert">
                     {{ $value }}

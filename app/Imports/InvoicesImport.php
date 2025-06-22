@@ -4,105 +4,149 @@ namespace App\Imports;
 
 use App\Models\Invoice;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
-class InvoicesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnFailure, SkipsEmptyRows, WithEvents
+class InvoicesImport implements
+    ToCollection,
+    WithHeadingRow,
+    WithValidation,
+    SkipsEmptyRows,
+    WithEvents
 {
-    use SkipsFailures;
-
-    protected $totalRows;
-    protected $currentRow = 0;
+    protected array $rows = [];
 
     public function __construct()
     {
-        HeadingRowFormatter::default('none'); // Match exact Excel headers
+        // Preserve original header casing (no formatting)
+        HeadingRowFormatter::default('none');
     }
 
     public static function beforeImport(BeforeImport $event)
     {
-        // Get total rows from the sheet
-        $instance = $event->getConcernable();
-        $instance->totalRows = $event->getReader()->getDelegate()->getActiveSheet()->getHighestRow();
+        // Optional: code before import starts
     }
 
-    // public function model(array $row)
-    // {
-    //     $this->currentRow++;
-
-    //     // Skip last row
-    //     if ($this->currentRow >= $this->totalRows) {
-    //         return null;
-    //     }
-
-    //     return new Invoice([
-    //         'sl_no'       => (int) $row['Sl. No.'],
-    //         'brand'       => (string) $row['Brand'],
-    //         'part_id'     => (string) $row['Part Id'],
-    //         'description' => (string) $row['Descripion'], // typo matches Excel header
-    //         'qty'         => (int) $row['Qty'],
-    //         'rate'        => (float) $row['Rate'],
-    //         'amount'      => (float) $row['Amount'],
-    //     ]);
-    // }
-
-    public function model(array $row)
+    /**
+     * Remove empty and summary ("total") rows before validation.
+     */
+    public function prepareForValidation($data, $index)
     {
-        // Skip if all cells are blank
-        if (collect($row)->filter()->isEmpty()) {
-            return null;
+        if ($this->shouldSkipRow($data)) {
+            return []; // Empty array => row skipped by validator
         }
 
-        // Skip known footer/summary row: e.g., if Part Id or Qty is missing
-        // Skip row if any known footer pattern is detected
-        if (
-            strtolower(trim($row['Sl. No.'])) === 'total'
-        ) {
-            return null;
-        }
-
-        return new Invoice([
-            'sl_no'       => (int) $row['Sl. No.'],
-            'brand'       => (string) $row['Brand'],
-            'part_id'     => (string) $row['Part Id'],
-            'description' => (string) $row['Descripion'], // typo matches Excel
-            'qty'         => (int) $row['Qty'],
-            'rate'        => (float) $row['Rate'],
-            'amount'      => (float) $row['Amount'],
-        ]);
+        $this->rows[$index] = $data; // Store for rules access
+        return $data;
     }
 
-
+    /**
+     * Validation rules for each row.
+     */
     public function rules(): array
     {
         return [
-            '*.Brand'       => 'required|string|max:255',
-            '*.Part Id'     => 'required|string|max:255',
-            '*.Descripion'  => 'nullable|string',
-            '*.Qty'         => 'required|integer|min:1',
-            '*.Rate'        => 'required|numeric|min:0',
-            '*.Amount'      => 'required|numeric|min:0',
+            '*.Brand' => function ($attribute, $value, $fail) {
+                $row = $this->getRow($attribute);
+                if ($this->shouldSkipRow($row)) return;
+
+                if ($value === null || $value === '') $fail('Brand is required.');
+                elseif (!is_string($value)) $fail('Brand must be a string.');
+            },
+
+            '*.Part Id' => function ($attribute, $value, $fail) {
+                $row = $this->getRow($attribute);
+                if ($this->shouldSkipRow($row)) return;
+
+                if ($value === null || $value === '') $fail('Part ID is required.');
+                elseif (!is_string($value)) $fail('Part ID must be a string.');
+            },
+
+            '*.Descripion' => function ($attribute, $value, $fail) {
+                $row = $this->getRow($attribute);
+                if ($this->shouldSkipRow($row)) return;
+
+                if ($value === null || $value === '') $fail('Description is required.');
+                elseif (!is_string($value)) $fail('Description must be a string.');
+            },
+
+            '*.Qty' => function ($attribute, $value, $fail) {
+                $row = $this->getRow($attribute);
+                if ($this->shouldSkipRow($row)) return;
+
+                if ($value === null || $value === '') $fail('Qty is required.');
+                elseif (!is_numeric($value) || intval($value) != $value) $fail('Qty must be an number.');
+                elseif (intval($value) <= 0) $fail('Qty must be greater than 0.');
+            },
+
+            '*.Rate' => function ($attribute, $value, $fail) {
+                $row = $this->getRow($attribute);
+                if ($this->shouldSkipRow($row)) return;
+
+                if ($value === null || $value === '') $fail('Rate is required.');
+                elseif (!is_numeric($value)) $fail('Rate must be a number.');
+                elseif (intval($value) <= 0) $fail('Rate must be greater than 0.');
+            },
+
+            '*.Amount' => function ($attribute, $value, $fail) {
+                $row = $this->getRow($attribute);
+                if ($this->shouldSkipRow($row)) return;
+
+                if ($value === null || $value === '') $fail('Amount is required.');
+                elseif (!is_numeric($value)) $fail('Amount must be a number.');
+                elseif (intval($value) <= 0) $fail('Amount must be greater than 0.');
+            },
         ];
     }
 
-    public function customValidationMessages()
+    /**
+     * Helper to get row data by attribute index.
+     */
+    private function getRow(string $attribute): array
     {
-        return [
-            '*.Brand.required'       => 'Brand is required.',
-            '*.Part Id.required'     => 'Part ID is required.',
-            '*.Qty.required'         => 'Quantity is required and must be greater than 0.',
-            '*.Rate.required'        => 'Rate is required and must be a number.',
-            '*.Amount.required'      => 'Amount is required and must be a number.',
-        ];
+        $index = explode('.', $attribute)[0] ?? null;
+        return $this->rows[$index] ?? [];
     }
 
+    /**
+     * Skip row if empty or if it's a summary "Total" row.
+     */
+    private function shouldSkipRow(array $row): bool
+    {
+        return collect($row)->filter()->isEmpty() ||
+            (isset($row['Sl. No.']) && strtolower(trim($row['Sl. No.'])) === 'total');
+    }
+
+    /**
+     * This method runs only if validation passes for all rows.
+     */
+    public function collection(Collection $rows)
+    {
+        foreach ($rows as $row) {
+            if ($this->shouldSkipRow($row->toArray())) {
+                continue;
+            }
+
+            Invoice::create([
+                'sl_no'       => (int) $row['Sl. No.'],
+                'brand'       => (string) $row['Brand'],
+                'part_id'     => (string) $row['Part Id'],
+                'description' => (string) $row['Descripion'],
+                'qty'         => (int) $row['Qty'],
+                'rate'        => (float) $row['Rate'],
+                'amount'      => (float) $row['Amount'],
+            ]);
+        }
+    }
+
+    /**
+     * Register import events (optional).
+     */
     public function registerEvents(): array
     {
         return [

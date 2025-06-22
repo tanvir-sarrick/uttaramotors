@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->integer('sl_no')->nullable();
-            $table->string('brand')->nullable();
-            $table->string('part_id')->nullable();
-            $table->text('description')->nullable();
-            $table->integer('qty')->nullable();
-            $table->decimal('rate', 10, 2)->nullable();
-            $table->decimal('amount', 10, 2)->nullable();
+            $table->integer('sl_no');
+            $table->string('brand');
+            $table->string('part_id');
+            $table->text('description');
+            $table->decimal('qty', 10,2);
+            $table->decimal('rate', 10, 2);
+            $table->decimal('amount', 10, 2);
             $table->timestamps();
         });
     }
