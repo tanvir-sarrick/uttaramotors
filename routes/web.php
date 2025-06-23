@@ -11,16 +11,6 @@ use App\Http\Controllers\Backend\UserController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\PermissionController;
 use App\Http\Controllers\Backend\InvoiceController;
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 
 Route::get('/', function () {
@@ -29,10 +19,10 @@ Route::get('/', function () {
     }
     return view('backend.auth.login');
 });
+
 Route::get('/qrcode', function () {
     return QrCode::size(300)->generate('A basic example of QR code!');
 });
-
 
 Route::get('/qrcode-email', function () {
     return QrCode::size(500)
@@ -52,16 +42,13 @@ Route::get('/generate-qr', [BarCodeController::class, 'singleBarCode']);
 
 
 Route::get('barcode', function () {
-
     $generatorPNG = new Picqer\Barcode\BarcodeGeneratorPNG();
     $image = $generatorPNG->getBarcode('www.globalinformatics.com.bd/', $generatorPNG::TYPE_CODE_128);
 });
 
-
 //Invoice Import
 Route::get('invoices', [InvoiceController::class, 'manage']);
 Route::post('invoices-import', [InvoiceController::class, 'import'])->name('invoices.import');
-
 
 Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
     // Dashboard
@@ -105,6 +92,8 @@ Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
                 Route::get('/Index', 'index')->name('index');
                 Route::get('/Create', 'create')->name('create');
                 Route::post('/Store', 'store')->name('store');
+
+                Route::post('/Clear', 'clear')->name('clear');
             });
         }
     );
