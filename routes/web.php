@@ -100,12 +100,12 @@ Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
             // Dealer Route
             Route::prefix('/Dealer')->controller(DealerController::class)->name('dealer.')->group(function () {
                 Route::get('/Index', 'index')->name('index');
-                // Route::get('/Create', 'create')->name('create');
-                // Route::post('/Store', 'store')->name('store');
-                // Route::get('/{id}/Edit', 'edit')->name('edit');
-                // Route::post('/{id}/Update', 'update')->name('update');
-                // Route::get('/{id}/Delete', 'destroy')->name('suspend');
-                // Route::post('/loadMoreItem', 'loadMoreItem')->name('loadMoreItem');
+                Route::get('/Create', 'create')->name('create');
+                Route::post('/Store', 'store')->name('store');
+                Route::get('/{id}/Edit', 'edit')->name('edit');
+                Route::post('/{id}/Update', 'update')->name('update');
+                Route::get('/{id}/Delete', 'destroy')->name('softdelete');
+                Route::post('/loadMoreItem', 'loadMoreItem')->name('loadMoreItem');
             });
         }
     );
