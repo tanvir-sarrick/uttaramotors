@@ -1,5 +1,5 @@
 @php
-    $usr = Auth::guard('web')->user();
+    $user = Auth::guard('web')->user();
 @endphp
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo ">
@@ -76,10 +76,36 @@
         <li class="menu-header small">
             <span class="menu-header-text" data-i18n="Apps & Pages">Apps &amp; Pages</span>
         </li>
-        <li class="menu-item @yield('invoice')">
+        <li class="menu-item">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons ti ti-files"></i>
+                <div data-i18n="Invoice">Invoice</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item @yield('import_invoice')">
+                    <a href="" class="menu-link">
+                        <div data-i18n="Import Invoice">Import Invoice</div>
+                    </a>
+                </li>
+                {{-- @if ($user->can('invoice.manage')) --}}
+                    <li class="menu-item @yield('all_invoice')">
+                        <a href="{{ route('dashboard.user.index') }}" class="menu-link">
+                            <div data-i18n="All Invoices">All Invoices</div>
+                        </a>
+                    </li>
+                {{-- @endif --}}
+            </ul>
+        </li>
+        {{-- <li class="menu-item @yield('invoice')">
             <a href="{{ route('dashboard.invoice.index') }}" class="menu-link">
                 <i class=" menu-icon tf-icons ti ti-file-import"></i>
-                <div data-i18n="Invoice Import">Invoice Import</div>
+                <div data-i18n="Invoice Import"> Import Invoice</div>
+            </a>
+        </li> --}}
+        <li class="menu-item @yield('dealer')">
+            <a href="{{ route('dashboard.dealer.index') }}" class="menu-link">
+                <i class=" menu-icon tf-icons ti ti-user"></i>
+                <div data-i18n="Dealers">Dealers</div>
             </a>
         </li>
 
@@ -101,7 +127,7 @@
                         <div data-i18n="Website Setting">Website Setting</div>
                     </a>
                 </li>
-                @if ($usr->can('user.manage'))
+                @if ($user->can('user.manage'))
                     <li class="menu-item @yield('user')">
                         <a href="{{ route('dashboard.user.index') }}" class="menu-link">
                             <div data-i18n="Users">Users</div>
@@ -110,7 +136,7 @@
                 @endif
             </ul>
         </li>
-        @if ($usr->can('permission.manage') || $usr->can('role.manage'))
+        @if ($user->can('permission.manage') || $user->can('role.manage'))
             <li class="menu-item">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons ti ti-adjustments-cog"></i>
@@ -118,14 +144,14 @@
                     <div data-i18n="Role & Permission">Role & Permission</div>
                 </a>
                 <ul class="menu-sub">
-                    @if ($usr->can('permission.manage'))
+                    @if ($user->can('permission.manage'))
                         <li class="menu-item">
                             <a href="{{ route('dashboard.permission.index') }}" class="menu-link">
                                 <div data-i18n="Manage Permission">Manage Permission</div>
                             </a>
                         </li>
                     @endif
-                    @if ($usr->can('role.manage'))
+                    @if ($user->can('role.manage'))
                         <li class="menu-item">
                             <a href="{{ route('dashboard.role.index') }}" class="menu-link">
                                 <div data-i18n="Manage Role">Manage Role</div>
@@ -136,7 +162,4 @@
             </li>
         @endif
     </ul>
-
-
-
 </aside>

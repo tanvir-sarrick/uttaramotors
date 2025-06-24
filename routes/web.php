@@ -8,9 +8,10 @@ use App\Http\Controllers\ProfileController;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\UserController;
+use App\Http\Controllers\Backend\DealerController;
+use App\Http\Controllers\Backend\InvoiceController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\PermissionController;
-use App\Http\Controllers\Backend\InvoiceController;
 
 
 Route::get('/', function () {
@@ -86,14 +87,22 @@ Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
                 Route::get('/{id}/Delete', 'destroy')->name('suspend');
                 Route::post('/loadMoreItem', 'loadMoreItem')->name('loadMoreItem');
             });
-
             //Invoice Route
             Route::prefix('/Invoice')->controller(InvoiceController::class)->name('invoice.')->group(function () {
                 Route::get('/Index', 'index')->name('index');
                 Route::get('/Create', 'create')->name('create');
                 Route::post('/Store', 'store')->name('store');
-
                 Route::post('/Clear', 'clear')->name('clear');
+            });
+            // Dealer Route
+            Route::prefix('/Dealer')->controller(DealerController::class)->name('dealer.')->group(function () {
+                Route::get('/Index', 'index')->name('index');
+                // Route::get('/Create', 'create')->name('create');
+                // Route::post('/Store', 'store')->name('store');
+                // Route::get('/{id}/Edit', 'edit')->name('edit');
+                // Route::post('/{id}/Update', 'update')->name('update');
+                // Route::get('/{id}/Delete', 'destroy')->name('suspend');
+                // Route::post('/loadMoreItem', 'loadMoreItem')->name('loadMoreItem');
             });
         }
     );
