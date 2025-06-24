@@ -18,7 +18,7 @@
                 <tr>
                     <th scope="row">{{ $s }}</th>
                     <td>{{ $invoice->invoice_number }}</td>
-                    <td>{{ $invoice->dillear_id }}</td>
+                    <td>{{ $invoice->dealer_id }}</td>
                     <td>{{ $invoice->total_qty }}</td>
                     <td>{{ $invoice->total_amount }}</td>
                     <td>

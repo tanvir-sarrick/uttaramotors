@@ -105,7 +105,8 @@ Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
                 Route::get('/{id}/Edit', 'edit')->name('edit');
                 Route::post('/{id}/Update', 'update')->name('update');
                 Route::get('/{id}/Delete', 'destroy')->name('softdelete');
-                Route::post('/loadMoreItem', 'loadMoreItem')->name('loadMoreItem');
+                Route::post('/loadMoreDealer', 'loadMoreDealer')->name('loadMoreDealer');
+                Route::post('/filterDealerData', 'filterDealerData')->name('filterDealerData');
             });
         }
     );

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_number');
-            $table->integer('dillear_id');
+            $table->integer('dealer_id')->default(1);
             $table->integer('user_id')->nullable();
             $table->integer('sl_no');
             $table->string('brand');

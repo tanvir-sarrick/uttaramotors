@@ -22,12 +22,12 @@ class InvoiceController extends Controller
             $invoices = Invoice::query()
                 ->select(
                     'invoice_number',
-                    'dillear_id',
+                    'dealer_id',
                     DB::raw('SUM(qty) as total_qty'),
                     DB::raw('SUM(amount) as total_amount'),
                     DB::raw('MAX(created_at) as created_at')
                 )
-                ->groupBy('invoice_number', 'dillear_id')
+                ->groupBy('invoice_number', 'dealer_id')
                 ->orderByDesc(DB::raw('MAX(created_at)'))
                 ->paginate(2);
 
@@ -52,7 +52,7 @@ class InvoiceController extends Controller
             $invoices = Invoice::query()
                 ->select(
                     'invoice_number',
-                    'dillear_id',
+                    'dealer_id',
                     DB::raw('SUM(qty) as total_qty'),
                     DB::raw('SUM(amount) as total_amount'),
                     DB::raw('MAX(created_at) as created_at')
@@ -66,7 +66,7 @@ class InvoiceController extends Controller
 
             // Grouping and pagination
             $invoices = $invoices
-                ->groupBy('invoice_number', 'dillear_id')
+                ->groupBy('invoice_number', 'dealer_id')
                 ->orderByDesc(DB::raw('MAX(created_at)'))
                 ->paginate(2);
 
@@ -91,7 +91,7 @@ class InvoiceController extends Controller
             $invoices = Invoice::query()
                 ->select(
                     'invoice_number',
-                    'dillear_id',
+                    'dealer_id',
                     DB::raw('SUM(qty) as total_qty'),
                     DB::raw('SUM(amount) as total_amount'),
                     DB::raw('MAX(created_at) as created_at')
@@ -106,7 +106,7 @@ class InvoiceController extends Controller
 
             // Grouping and pagination
             $invoices = $invoices
-                ->groupBy('invoice_number', 'dillear_id')
+                ->groupBy('invoice_number', 'dealer_id')
                 ->orderByDesc(DB::raw('MAX(created_at)'))
                 ->paginate(2);
 

@@ -34,6 +34,85 @@ class DealerController extends Controller
         }
     }
 
+    public function loadMoreDealer(Request $request)
+    {
+        //dd($request);
+        try {
+            $query = Dealer::orderBy('created_at', 'desc');
+
+            if ($request->filled('filterData')) {
+                $data = $request->input('filterData');
+
+                $query->where(fn($q) => $q
+                    ->where('dealer_code', 'like', "%$data%")
+                    ->orWhere('dealer_name', 'like', "%$data%")
+                );
+            }
+
+            if ($request->filled('status')) {
+                $status = (int) $request->input('status');
+
+                if ($status !== 2) {
+                    $query->where('status', $status);
+                }
+            }
+
+            $dealers = $query->paginate(2);
+
+            $data = view('backend.pages.dealer.showDealerList', compact('dealers'))->render();
+
+            return response()->json([
+                'data' => $data,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'alert_type' => 'error',
+                'message'    => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function filterDealerData(Request $request)
+    {
+        try {
+            $query = Dealer::orderBy('created_at', 'desc');
+
+            if ($request->filled('filterData')) {
+                $data = $request->input('filterData');
+                $query->where(fn($q) => $q
+                    ->where('dealer_code', 'like', "%$data%")
+                    ->orWhere('dealer_name', 'like', "%$data%")
+                );
+            }
+
+
+            if ($request->filled('status')) {
+                $status = (int) $request->input('status');
+
+                if ($status !== 2) {
+                    $query->where('status', $status);
+                }
+            }
+
+            $dealers = $query->paginate(2);
+
+            $data = view('backend.pages.dealer.showDealerList', compact('dealers'))->render();
+
+            return response()->json([
+                'data' => $data,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'alert_type' => 'error',
+                'message'    => $e->getMessage(),
+            ]);
+        }
+    }
+
+
+
     public function create()
     {
         // if (!Auth::user()->can('user.create')) {

@@ -1,6 +1,6 @@
 @if ($dealers->count() > 0)
-<table class="datatables-customers table border-top">
-    <thead>
+<table class="datatables-customers table table-striped text-center">
+    <thead class="table-dark">
       <tr>
         <th class="text-nowrap">Sl#</th>
         <th class="text-nowrap">Dealer Code</th>
@@ -20,13 +20,13 @@
                 <td>{{ $dealer->dealer_name }}</td>
                 <td>
                     @if ($dealer->status === 1)
-                    <span class="tb-status text-success">Active</span>
+                    <span class="badge bg-label-success me-1">Active</span>
                     @else
-                        <span class="tb-status text-danger">Inactive</span>
+                        <span class="badge bg-label-danger me-1">Inactive</span>
                     @endif
                 </td>
                 <td>
-                    <div class="d-flex align-items-center">
+                    <div class="">
                       <a href="{{ route('dashboard.dealer.edit', $dealer->id) }}" class="btn btn-info btn-text-secondary rounded-pill waves-effect btn-icon delete-record">
                         <i class="fa-solid fa-pen-to-square"></i>
                       </a>
@@ -46,7 +46,7 @@
 </table>
 <div id="pagination-container">
     {{-- Render Custom Pagination --}}
-    {{ $dealers->links('backend.pagination.custom', ['paginator' => $dealers->onEachSide(1)->withQueryString()->setPageName('page')->setPath(route('dashboard.dealer.loadMoreItem'))]) }}
+    {{ $dealers->links('backend.pagination.custom', ['paginator' => $dealers->onEachSide(1)->withQueryString()->setPageName('page')->setPath(route('dashboard.dealer.loadMoreDealer'))]) }}
 </div>
 @else
 {{-- No Data --}}
