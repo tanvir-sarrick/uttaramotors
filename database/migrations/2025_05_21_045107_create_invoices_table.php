@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_number');
+            $table->integer('dillear_id');
             $table->integer('user_id')->nullable();
             $table->integer('sl_no');
             $table->string('brand');
             $table->string('part_id');
             $table->text('description');
-            $table->decimal('qty', 10,2);
+            $table->decimal('qty', 10, 2);
             $table->decimal('rate', 10, 2);
             $table->decimal('amount', 10, 2);
             $table->timestamps();

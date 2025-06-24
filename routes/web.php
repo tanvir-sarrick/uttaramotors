@@ -90,6 +90,9 @@ Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
             //Invoice Route
             Route::prefix('/Invoice')->controller(InvoiceController::class)->name('invoice.')->group(function () {
                 Route::get('/Index', 'index')->name('index');
+                Route::post('/loadMoreData', 'loadMoreData')->name('loadMoreData');
+                Route::post('/filterData', 'filterData')->name('filterData');
+                Route::get('/Import', 'import_index')->name('import');
                 Route::get('/Create', 'create')->name('create');
                 Route::post('/Store', 'store')->name('store');
                 Route::post('/Clear', 'clear')->name('clear');

@@ -76,23 +76,23 @@
         <li class="menu-header small">
             <span class="menu-header-text" data-i18n="Apps & Pages">Apps &amp; Pages</span>
         </li>
-        <li class="menu-item">
+        <li class="menu-item @yield('active_open')">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons ti ti-files"></i>
                 <div data-i18n="Invoice">Invoice</div>
             </a>
             <ul class="menu-sub">
                 <li class="menu-item @yield('import_invoice')">
-                    <a href="" class="menu-link">
+                    <a href="{{ route('dashboard.invoice.import') }}" class="menu-link">
                         <div data-i18n="Import Invoice">Import Invoice</div>
                     </a>
                 </li>
                 {{-- @if ($user->can('invoice.manage')) --}}
-                    <li class="menu-item @yield('all_invoice')">
-                        <a href="{{ route('dashboard.user.index') }}" class="menu-link">
-                            <div data-i18n="All Invoices">All Invoices</div>
-                        </a>
-                    </li>
+                <li class="menu-item @yield('all_invoice')">
+                    <a href="{{ route('dashboard.invoice.index') }}" class="menu-link">
+                        <div data-i18n="All Invoices">All Invoices</div>
+                    </a>
+                </li>
                 {{-- @endif --}}
             </ul>
         </li>
