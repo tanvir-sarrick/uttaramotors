@@ -17,27 +17,29 @@
     <div class="col-12">
         <div class="card">
             <div class="card-datatable table-responsive">
-                <div class="card-header d-flex border-top rounded-0 flex-wrap py-3 flex-column align-items-end">
-                    <div class="me-5 ms-n4 pe-5 mb-n6 mb-md-0">
+                <div class="card-header d-flex border-top rounded-0 flex-wrap py-3 align-items-center">
+                    <!-- Header Title aligned left -->
+                    <div class="flex-grow-1">
+                        <h4 class="mb-0">Dealers</h4>
                     </div>
 
-
-                    <div class="d-flex justify-content-start justify-content-md-end align-items-baseline">
+                    <!-- Filters and Button aligned right -->
+                    <div class="d-flex flex-column flex-md-row align-items-end align-items-md-center justify-content-md-end">
                         <div class="dt-action-buttons d-flex flex-column align-items-start align-items-sm-center justify-content-sm-center pt-0 gap-sm-4 gap-sm-0 flex-sm-row">
                             <div class="dataTables_length mx-n2" id="DataTables_Table_0_length">
                                 <label>
                                     <input type="text" id="filterData" name="filterData" class="form-control" placeholder="Search By Dealer Code/Name" style="width: 240px;" autocomplete="off">
                                 </label>
 
-                                <label for="">
+                                <label>
                                     <select class="form-select js-select2" name="status" id="filterStatus" data-placeholder="Select Status">
                                         <option value="2">All Dealers</option>
                                         <option value="1">Active</option>
                                         <option value="0">Inactive</option>
                                     </select>
                                 </label>
-
                             </div>
+
                             <div class="dt-buttons btn-group flex-wrap d-flex mb-6 mb-sm-0">
                                 <button id="createDealerBtn" class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light" type="button">
                                     <span><i class="ti ti-plus me-1 ti-xs"></i>Create Dealer</span>
@@ -47,7 +49,7 @@
                     </div>
                 </div>
 
-                <div class="card-datatable table-responsive dataList" id="dataList">
+                <div class="card-datatable table-responsive dataList pb-0" id="dataList" >
                     @if (session('success'))
                     <div class="col-12 px-3">
                         <div class="alert alert-success alert-dismissible" role="alert">

@@ -9,20 +9,24 @@
             <!-- /Left Text -->
             <div class="d-none d-lg-flex col-lg-8 p-0">
             <div class="auth-cover-bg auth-cover-bg-color d-flex justify-content-center align-items-center">
-                <img src="{{  asset('backend/assets/img/illustrations/boy-with-laptop-light.png') }}" alt="auth-login-cover" class="my-5 auth-illustration" >
-                <img src="{{  asset('backend/assets/img/illustrations/bg-shape-image-light.png') }}" alt="auth-login-cover" class="platform-bg">
+                <img src="{{  asset('backend/assets/img/backgrounds/Uttara-LoginBg.png') }}" alt="auth-login-cover" class="my-5" style="width: 590px; height: auto;">
             </div>
             </div>
             <!-- /Left Text -->
 
             <!-- Login -->
-            <div class="d-flex col-12 col-lg-4 align-items-center authentication-bg p-sm-12 p-6">
+            <div class="d-flex col-12 col-lg-4 align-items-center authentication-bg p-sm-12">
                 <div class="w-px-400 mx-auto mt-12 pt-5">
+                    <!-- Brand Logo -->
+                    <div class="mb-3 text-center">
+                        <img src="{{ asset('backend/assets/img/uttara_logo.png') }}" alt="Brand Logo" class="img-fluid" style="max-height: 80px;">
+                    </div>
+
                     <h4 class="mb-1">Login 👋</h4>
                     <form class="mb-6" method="POST" action="{{ route('login') }}">
                         @csrf
                         <div class="mb-6">
-                            <label for="email" class="form-label">Enter Email Address</label>
+                            <label for="email" class="form-label">Email Address</label>
                             <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email address" required autofocus autocomplete="username">
                             @error('email')
                                 <span class="mt-2 text-danger">{{ $message }}</span>
@@ -57,6 +61,7 @@
                     </form>
                 </div>
             </div>
+
             <!-- /Login -->
         </div>
     </div>

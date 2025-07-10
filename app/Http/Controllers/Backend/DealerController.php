@@ -11,10 +11,6 @@ class DealerController extends Controller
 {
     public function index(Request $request)
     {
-        // if (!Auth::user()->can('user.manage')) {
-        //     return abort(403, 'Unauthorized');
-        // }
-
         try {
             $dealers = Dealer::query()->orderBy('created_at', 'desc');
 
@@ -36,7 +32,6 @@ class DealerController extends Controller
 
     public function loadMoreDealer(Request $request)
     {
-        //dd($request);
         try {
             $query = Dealer::orderBy('created_at', 'desc');
 
@@ -111,15 +106,8 @@ class DealerController extends Controller
         }
     }
 
-
-
     public function create()
     {
-        // if (!Auth::user()->can('user.create')) {
-        //     return abort(403, 'Unauthorized');
-        // }
-
-        //$all_roles = Role::all();
         return view('backend.pages.dealer.create');
     }
 
@@ -149,10 +137,6 @@ class DealerController extends Controller
 
     public function edit($id)
     {
-        // if (!Auth::user()->can('user.edit')) {
-        //     return abort(403, 'Unauthorized');
-        // }
-
         $dealer = Dealer::find($id);
 
         if( !is_null($dealer) ){

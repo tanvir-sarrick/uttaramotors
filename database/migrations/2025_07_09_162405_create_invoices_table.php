@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('invoice_number');
-            $table->integer('dealer_id')->default(1);
+            $table->unsignedBigInteger('dealer_id');
+            //$table->integer('dealer_id');
             $table->integer('user_id')->nullable();
             $table->integer('sl_no');
             $table->string('brand');
@@ -24,6 +25,8 @@ return new class extends Migration
             $table->decimal('rate', 10, 2);
             $table->decimal('amount', 10, 2);
             $table->timestamps();
+
+            $table->foreign('dealer_id')->references('id')->on('dealers')->onDelete('cascade');
         });
     }
 
@@ -32,6 +35,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->dropForeign(['dealer_id']);
+        });
+
         Schema::dropIfExists('invoices');
     }
 };

@@ -17,11 +17,13 @@ class InvoicesImport implements ToCollection, WithHeadingRow, WithValidation, Sk
     protected array $rows = [];
     protected string $invoiceNumber;
     protected string $userId;
+    protected string $dealerId;
 
-    public function __construct(string $invoiceNumber, $userId)
+    public function __construct(string $invoiceNumber, $userId, $dealerId)
     {
         $this->invoiceNumber    = $invoiceNumber;
         $this->userId           = $userId;
+        $this->dealerId           = $dealerId;
         // Preserve original header casing (no formatting)
         HeadingRowFormatter::default('none');
     }
@@ -135,6 +137,7 @@ class InvoicesImport implements ToCollection, WithHeadingRow, WithValidation, Sk
                 'sl_no'         => (int) $row['Sl. No.'],
                 'invoice_number'=> $this->invoiceNumber,
                 'user_id'       => $this->userId,
+                'dealer_id'       => $this->dealerId,
                 'brand'         => (string) $row['Brand'],
                 'part_id'       => (string) $row['Part Id'],
                 'description'   => (string) $row['Descripion'],

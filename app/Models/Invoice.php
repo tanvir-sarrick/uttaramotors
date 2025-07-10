@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Dealer;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Invoice extends Model
 {
@@ -20,4 +21,9 @@ class Invoice extends Model
         'rate',
         'amount',
     ];
+
+    public function dealer()
+    {
+        return $this->belongsTo(Dealer::class);
+    }
 }

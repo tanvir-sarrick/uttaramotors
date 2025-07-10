@@ -22,63 +22,64 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card">
-                <div class="card-header d-flex border-top rounded-0 flex-wrap py-3 flex-column align-items-end">
-                    <div class="me-5 ms-n4 pe-5 mb-n6 mb-md-0">
-                    </div>
-                    <div class="d-flex justify-content-start justify-content-md-end align-items-baseline">
-                        <div class="dt-action-buttons d-flex flex-column align-items-start align-items-sm-center justify-content-sm-center pt-0 gap-sm-4 gap-sm-0 flex-sm-row">
-                            <div class="dt-buttons btn-group flex-wrap d-flex mb-6 mb-sm-0">
-                                <button id="BackDealerBtn" class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light" type="button">
-                                    <span><i class="ti ti-arrow-left me-1 ti-xs"></i>Back</span>
-                                </button>
-                            </div>
+            <div class="card-header d-flex border-top rounded-0 flex-wrap py-3 align-items-center">
+                <!-- Left side: Header -->
+                <div class="flex-grow-1">
+                    <h4 class="mb-0">Edit Dealer</h4>
+                </div>
+
+                <!-- Right side: Back button -->
+                <div class="d-flex justify-content-end align-items-baseline">
+                    <div class="dt-action-buttons d-flex flex-column align-items-start align-items-sm-center justify-content-sm-center pt-0 gap-sm-4 gap-sm-0 flex-sm-row">
+                        <div class="dt-buttons btn-group flex-wrap d-flex mb-6 mb-sm-0">
+                            <button id="BackDealerBtn" class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light" type="button">
+                                <span><i class="ti ti-arrow-left me-1 ti-xs"></i>Back</span>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <form class="form" action="{{ route('dashboard.dealer.update', $dealer->id) }}" method="post">
-                    @csrf
-                    <div class="row mx-3">
-                        <div class="col-4">
-                            <div class="mb-3">
-                                <label for="dealer_code" class="form-label">Dealer Code <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="dealer_code" name="dealer_code" value="{{ $dealer->dealer_code ?? old('dealer_code') }}" placeholder="Enter Dealer Code">
-                                @error('dealer_code')
-                                    <span class="text-danger mt-2">{{ $message }}</span>
-                                @enderror
-                            </div>
+            </div>
+            <form class="form" action="{{ route('dashboard.dealer.update', $dealer->id) }}" method="post">
+                @csrf
+                <div class="row mx-3">
+                    <div class="col-4">
+                        <div class="mb-3">
+                            <label for="dealer_code" class="form-label">Dealer Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="dealer_code" name="dealer_code" value="{{ $dealer->dealer_code ?? old('dealer_code') }}" placeholder="Enter Dealer Code">
+                            @error('dealer_code')
+                                <span class="text-danger mt-2">{{ $message }}</span>
+                            @enderror
                         </div>
-                        <div class="col-4">
-                            <div class="mb-3">
-                                <label for="dealer_name" class="form-label">Dealer Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="dealer_name" name="dealer_name" value="{{ $dealer->dealer_name ?? old('dealer_name') }}" placeholder="Enter Dealer Name">
-                                @error('dealer_name')
-                                    <span class="text-danger mt-2">{{ $message }}</span>
-                                @enderror
-                            </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="mb-3">
+                            <label for="dealer_name" class="form-label">Dealer Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="dealer_name" name="dealer_name" value="{{ $dealer->dealer_name ?? old('dealer_name') }}" placeholder="Enter Dealer Name">
+                            @error('dealer_name')
+                                <span class="text-danger mt-2">{{ $message }}</span>
+                            @enderror
                         </div>
-                         <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label">Status <span class="text-danger">*</span></label>
-                                <div class="form-control-wrap">
-                                    <select class="form-select js-select2" name="status" id="status" data-placeholder="Select status">
-                                        <option value="" disabled>-- Select --</option>
-                                        <option value="1" @if ($dealer->status === 1) selected @endif>Active</option>
-                                        <option value="0" @if ($dealer->status === 0) selected @endif>Inactive</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="mb-3">
-                                <label class="form-label"></label>
-                                <button class="btn btn-primary me-3 mt-6 waves-effect waves-light" type="submit">Update</button>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label">Status <span class="text-danger">*</span></label>
+                            <div class="form-control-wrap">
+                                <select class="form-select js-select2" name="status" id="status" data-placeholder="Select status">
+                                    <option value="" disabled>-- Select --</option>
+                                    <option value="1" @if ($dealer->status === 1) selected @endif>Active</option>
+                                    <option value="0" @if ($dealer->status === 0) selected @endif>Inactive</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                </form>
-
-            </div>
+                    <div class="col-6">
+                        <div class="mb-3">
+                            <label class="form-label"></label>
+                            <button class="btn btn-primary me-3 mt-6 waves-effect waves-light" type="submit">Update</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

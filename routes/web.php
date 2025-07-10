@@ -12,14 +12,18 @@ use App\Http\Controllers\Backend\DealerController;
 use App\Http\Controllers\Backend\InvoiceController;
 use App\Http\Controllers\Backend\DashboardController;
 use App\Http\Controllers\Backend\PermissionController;
+use App\Http\Controllers\Backend\InvoicePrintController;
 
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return redirect()->route('dashboard.index'); // Adjust to your dashboard route
+        return redirect()->route('dashboard.index');
     }
     return view('backend.auth.login');
 });
+
+
+// =========================== //
 
 Route::get('/qrcode', function () {
     return QrCode::size(300)->generate('A basic example of QR code!');
@@ -29,7 +33,6 @@ Route::get('/qrcode-email', function () {
     return QrCode::size(500)
         ->email('hardik@itsolutionstuff.com', 'Welcome to ItSolutionStuff.com!', 'This is !.');
 });
-
 
 
 // Single Qr Code
@@ -48,8 +51,11 @@ Route::get('barcode', function () {
 });
 
 //Invoice Import
-Route::get('invoices', [InvoiceController::class, 'manage']);
-Route::post('invoices-import', [InvoiceController::class, 'import'])->name('invoices.import');
+// Route::get('invoices', [InvoiceController::class, 'manage']);
+// Route::post('invoices-import', [InvoiceController::class, 'import'])->name('invoices.import');
+
+
+// ========================================== //
 
 Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
     // Dashboard
@@ -77,6 +83,7 @@ Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
                 Route::get('/{id}/Delete', 'destroy')->name('destroy');
                 Route::post('/loadMorePermission', 'loadMorePermission')->name('loadMorePermission');
             });
+
             // User Route
             Route::prefix('/User')->controller(UserController::class)->name('user.')->group(function () {
                 Route::get('/Index', 'index')->name('index');
@@ -84,19 +91,28 @@ Route::prefix('Dashboard/')->middleware('auth', 'verified')->group(function () {
                 Route::post('/Store', 'store')->name('store');
                 Route::get('/{id}/Edit', 'edit')->name('edit');
                 Route::post('/{id}/Update', 'update')->name('update');
-                Route::get('/{id}/Delete', 'destroy')->name('suspend');
-                Route::post('/loadMoreItem', 'loadMoreItem')->name('loadMoreItem');
+                Route::get('/{id}/Delete', 'destroy')->name('softdelete');
+                Route::post('/loadMoreUser', 'loadMoreUser')->name('loadMoreUser');
+                Route::post('/filterUserData', 'filterUserData')->name('filterUserData');
             });
             //Invoice Route
             Route::prefix('/Invoice')->controller(InvoiceController::class)->name('invoice.')->group(function () {
                 Route::get('/Index', 'index')->name('index');
                 Route::post('/loadMoreData', 'loadMoreData')->name('loadMoreData');
                 Route::post('/filterData', 'filterData')->name('filterData');
-                Route::get('/Import', 'import_index')->name('import');
-                Route::get('/Create', 'create')->name('create');
-                Route::post('/Store', 'store')->name('store');
+                Route::get('/Import', 'import_index')->name('import_index');
+                // Route::get('/Create', 'create')->name('create');
+                // Route::post('/Store', 'store')->name('store');
+                Route::post('/Invoices-import', 'import')->name('import');
                 Route::post('/Clear', 'clear')->name('clear');
+                Route::post('/Delete', 'delete')->name('delete');
             });
+
+            //Invoice Print Route
+            Route::prefix('/Invoice')->controller(InvoicePrintController::class)->name('invoicePrint.')->group(function () {
+                Route::get('/Print', 'print')->name('print');
+            });
+
             // Dealer Route
             Route::prefix('/Dealer')->controller(DealerController::class)->name('dealer.')->group(function () {
                 Route::get('/Index', 'index')->name('index');

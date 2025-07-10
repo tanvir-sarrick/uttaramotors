@@ -13,19 +13,14 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        if (!Auth::user()->can('user.manage')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->can('user.manage')) {
             return abort(403, 'Unauthorized');
         }
 
         try {
-            $users = User::query()->orderBy('created_at', 'desc');
-
-            $users = $users->paginate(2);
-
-            if($request->ajax()){
-                $data = view('backend.pages.user.showUserList', compact('users'))->render();
-                return response()->json(['data' => $data]);
-            }
+            $users = User::query()->orderBy('created_at', 'desc')->paginate(2);
 
             return view('backend.pages.user.index',compact('users'));
         } catch (\Exception $th) {
@@ -36,20 +31,100 @@ class UserController extends Controller
         }
     }
 
+    public function loadMoreUser(Request $request)
+    {
+        try {
+            $query = User::orderBy('created_at', 'desc');
+
+            if ($request->filled('filterData')) {
+                $data = $request->input('filterData');
+                $query->where(fn($q) => $q
+                    ->where('name', 'like', "%$data%")
+                    ->orWhere('email', 'like', "%$data%")
+                );
+            }
+
+            if ($request->filled('status')) {
+                $status = (int) $request->input('status');
+
+                if ($status !== 2) {
+                    $query->where('status', $status);
+                }
+            }
+
+            $users = $query->paginate(2);
+
+            $data = view('backend.pages.user.showUserList', compact('users'))->render();
+
+            return response()->json([
+                'data' => $data,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'alert_type' => 'error',
+                'message'    => $e->getMessage(),
+            ]);
+        }
+    }
+
+    public function filterUserData(Request $request)
+    {
+        try {
+            $query = User::orderBy('created_at', 'desc');
+
+            if ($request->filled('filterData')) {
+                $data = $request->input('filterData');
+                $query->where(fn($q) => $q
+                    ->where('name', 'like', "%$data%")
+                    ->orWhere('email', 'like', "%$data%")
+                );
+            }
+
+            if ($request->filled('status')) {
+                $status = (int) $request->input('status');
+
+                if ($status !== 2) {
+                    $query->where('status', $status);
+                }
+            }
+
+            $users = $query->paginate(2);
+
+            $data = view('backend.pages.user.showUserList', compact('users'))->render();
+
+            return response()->json([
+                'data' => $data,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'alert_type' => 'error',
+                'message'    => $e->getMessage(),
+            ]);
+        }
+    }
+
     public function create()
     {
-        if (!Auth::user()->can('user.create')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->can('user.create')) {
             return abort(403, 'Unauthorized');
         }
 
         $all_roles = Role::all();
         return view('backend.pages.user.create', compact('all_roles'));
     }
+
     public function store(Request $request)
     {
-        if (!Auth::user()->can('user.create')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->can('user.create')) {
             return abort(403, 'Unauthorized');
         }
+
         // Validation Data
         $validate = $request->validate(
             [
@@ -69,18 +144,21 @@ class UserController extends Controller
         $user->name     = $request->name;
         $user->email    = $request->email;
         $user->password = Hash::make($request->password);
+        $user->status     = $request->status;
 
         $user->save();
         if( $request->roles ){
             $user->assignRole($request->roles);
         }
         // dd($user);exit();
-        return redirect()->route('dashboard.user.index')->with('User Created Successfully.');
+        return redirect()->route('dashboard.user.index')->with('success', 'User Created Successfully.');
     }
 
     public function edit($id)
     {
-        if (!Auth::user()->can('user.edit')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->can('user.edit')) {
             return abort(403, 'Unauthorized');
         }
 
@@ -94,11 +172,14 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('user.edit')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->can('user.edit')) {
             return abort(403, 'Unauthorized');
         }
 
         $user   = User::find($id);
+        
         if( !is_null($user) ){
             // Validation Data
             $validate = $request->validate(
@@ -115,44 +196,52 @@ class UserController extends Controller
 
             $user->name         = $request->name;
             $user->email        = $request->email;
-
+            $user->status     = $request->status;
 
             $user->save();
             $user->roles()->detach();
             if( $request->roles ){
                 $user->assignRole($request->roles);
             }
-             //dd($user);exit();
-             return redirect()->route('dashboard.user.index');
+
+            return redirect()->route('dashboard.user.index')->with('success', 'User updated successfully.');
         }
     }
 
     public function destroy(Request $request, $id)
     {
-        if (!Auth::user()->can('user.delete')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!$user->can('user.delete')) {
             return abort(403, 'Unauthorized');
         }
 
-        $user = User::find($id);
+        $user = User::findOrFail($id);
         //dd($user);
         if( !is_null($user) ){
-           $user->delete();
+           if ($user->status === 1) {
+            $status = 0;
+            $user->update([
+                'status' => $status,
+            ]);
 
-           if($user->delete()){
-                $user->syncRoles([]);
-                $user->syncPermissions([]);
-           }
             return response()->json([
                 'success' => true,
                 'status' => 'success',
-                "message" => "User deleted successfully.",
-                "url" => route('dashboard.user.index')
+                "message" => "This user has been softdeleted successfully",
             ]);
+            }else{
+                return response()->json([
+                    'success' => true,
+                    'status' => 'warning',
+                    "message" => "This user has already been softdeleted!",
+                ]);
+            }
         }
         else{
             return response()->json([
-                "message" => "No User found for the specified ID.",
-                "url" => route('dashboard.user.index')
+                "message" => "No user found for the specified ID.",
             ]);
         }
     }

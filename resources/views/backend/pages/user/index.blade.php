@@ -1,7 +1,7 @@
 @extends('backend.layout.template')
 @section('title', 'Users')
 @section('user', 'active')
-@section('active_open', 'active open')
+@section('settings', 'active open')
 @section('style')
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css') }}">
     <link rel="stylesheet"
@@ -15,21 +15,37 @@
 
     </style>
 @endsection
+
 @section('content')
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-datatable table-responsive">
-                    <div class="card-header d-flex border-top rounded-0 flex-wrap py-3 flex-column align-items-end">
-                        <div class="me-5 ms-n4 pe-5 mb-n6 mb-md-0">
+                    <div class="card-header d-flex border-top rounded-0 flex-wrap py-3 align-items-center">
+                        <!-- Header Title aligned left -->
+                        <div class="flex-grow-1">
+                            <h4 class="mb-0">Users</h4>
                         </div>
-                        <div class="d-flex justify-content-start justify-content-md-end align-items-baseline">
-                            <div
-                                class="dt-action-buttons d-flex flex-column align-items-start align-items-sm-center justify-content-sm-center pt-0 gap-sm-4 gap-sm-0 flex-sm-row">
+
+                        <!-- Filters and Button aligned right -->
+                        <div class="d-flex flex-column flex-md-row align-items-end align-items-md-center justify-content-md-end">
+                            <div class="dt-action-buttons d-flex flex-column align-items-start align-items-sm-center justify-content-sm-center pt-0 gap-sm-4 gap-sm-0 flex-sm-row">
+                                <div class="dataTables_length mx-n2" id="DataTables_Table_0_length">
+                                    <label>
+                                        <input type="text" id="filterData" name="filterData" class="form-control" placeholder="Search By User Name/Email" style="width: 240px;" autocomplete="off">
+                                    </label>
+
+                                    <label>
+                                        <select class="form-select js-select2" name="status" id="filterStatus" data-placeholder="Select Status">
+                                            <option value="2">All Users</option>
+                                            <option value="1">Active</option>
+                                            <option value="0">Inactive</option>
+                                        </select>
+                                    </label>
+                                </div>
+
                                 <div class="dt-buttons btn-group flex-wrap d-flex mb-6 mb-sm-0">
-                                    <button id="createUserBtn"
-                                        class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light"
-                                        type="button">
+                                    <button id="createUserBtn" class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light" type="button">
                                         <span><i class="ti ti-plus me-1 ti-xs"></i>Create User</span>
                                     </button>
                                 </div>
@@ -37,7 +53,7 @@
                         </div>
                     </div>
 
-                    <div class="card-datatable table-responsive dataList" id="dataList">
+                    <div class="card-datatable table-responsive dataList pb-0" id="dataList">
                         @if (session('success'))
                             <div class="col-12 px-3">
                                 <div class="alert alert-success alert-dismissible" role="alert">
@@ -58,28 +74,28 @@
 @section('script')
     <script src="{{ asset('backend/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         $(document).ready(function() {
-            // Track the current page globally
+            // Track The Current Page Globally
             let currentPage = 1;
+
             $('#createUserBtn').click(function(e) {
                 e.preventDefault();
-                var downloadUrl = "{{ route('dashboard.user.create') }}";
-                // Redirect to the download URL
-                window.location.href = downloadUrl;
+                window.location.href = "{{ route('dashboard.user.create') }}";
             });
 
-            // User suspend part start
-            $(document).on("click", ".suspendData", function(e) {
+            // User Soft Delate part start
+            $(document).on("click", ".softDeleteData", function(e) {
                 e.preventDefault();
                 const url = $(this).data("url");
 
                 Swal.fire({
                     title: "Are you sure?",
-                    text: "This Data will be Deleted!",
+                    text: "This Data will be Soft Deleted!",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Yes, Deleted the Data!",
+                    confirmButtonText: "Yes, Soft Deleted the Data!",
                     cancelButtonText: "Cancel",
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -88,14 +104,12 @@
                             type: "GET",
                             success: function(response) {
                                 if (response.status === 'success') {
-                                    Swal.fire("Deleted!", response.message, "success");
-                                    window.location.href = response.url;
+                                    Swal.fire("Soft Deleted!", response.message, "success");
                                 } else {
-                                    Swal.fire("Deleted!", response.message, "warning");
+                                    Swal.fire("Soft Deleted!", response.message, "warning");
                                 }
-                                // Reload the current page after suspension
-                                //window.location.reload();
-                                window.location.href = response.url;
+                                const CurrentPageUrl = "{{ route('dashboard.user.loadMoreUser') }}?page=" + currentPage;
+                                fetchDataList(CurrentPageUrl);
                             },
                             error: function(xhr, status, error) {
                                 Swal.fire("Error!",
@@ -106,34 +120,26 @@
                     }
                 });
             });
-            // User suspend part end
+            // Dealer Soft Delate part end
 
-            //Function to fetch all data start
-            function showAllData() {
-                spinnershow('dataList');
-                $.ajax({
-                    url: "{{ route('dashboard.permission.index') }}",
-                    type: 'GET',
-                    success: function(response) {
-                        $(".dataList").html(response.data);
-                    },
+            $(document).on('click', '#pagination-container a', function(e) {
+                e.preventDefault();
+                var CurrentPageUrl = $(this).attr('href');
+                currentPage = new URL(CurrentPageUrl).searchParams.get('page') || 1;
+                fetchDataList(CurrentPageUrl);
+            });
 
-                    error: function(xhr, status, error) {
-                        console.error("Error fetching data: ", error);
-                    }
-                });
-            }
-            //Function to fetch all data end
-
-            //Function to fetch page number wise data start
+            //Function To Fetch Page Number Wise Data Start
             function fetchDataList(CurrentPageUrl) {
-                const datarange = $('#dateRange').val();
+                const filterData = $('#filterData').val();
+                const status = $('#filterStatus').val();
                 spinnershow('dataList');
                 $.ajax({
                     url: CurrentPageUrl,
                     type: 'POST',
                     data: {
-                        datarange: datarange,
+                        filterData: filterData,
+                        status: status,
                     },
                     success: function(response) {
                         $('.dataList').html(response.data);
@@ -143,15 +149,51 @@
                     },
                 });
             }
-            //Function to fetch page number wise data end
+            //Function To Fetch Page Number Wise Data End
 
+            //Filter User data by name or email start
+            $(document).on('keyup', '#filterData', function() {
+                var status = $('#filterStatus').val();
+                var filterData = $(this).val();
+                var url = "{{ route('dashboard.user.filterUserData') }}";
+                spinnershow('dataList');
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: {
+                        filterData: filterData,
+                        status: status
+                    },
+                    success: function(res) {
+                        $('.dataList').html(res.data);
+                    }
+                });
 
-            $(document).on('click', '#pagination-container a', function(e) {
-                e.preventDefault();
-                var CurrentPageUrl = $(this).attr('href');
-                currentPage = new URL(CurrentPageUrl).searchParams.get('page') || 1;
-                fetchDataList(CurrentPageUrl);
             });
+            //Filter User data by name or email end
+
+            //Filter User data by status start
+            $(document).on('change', '#filterStatus', function() {
+                var filterData = $('#filterData').val();
+                var status = $(this).val();
+
+                var url = "{{ route('dashboard.user.filterUserData') }}";
+                spinnershow('dataList');
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: {
+                        filterData: filterData,
+                        status: status
+                    },
+                    success: function(res) {
+
+                        $('.dataList').html(res.data);
+                    }
+                });
+
+            });
+            ////Filter User data by status start
         });
     </script>
 @endsection

@@ -7,7 +7,6 @@
 
   <body>
     @yield('content')
-
     <!-- Core JS -->
     @include('backend.auth.includes.scripts')
   </body>
