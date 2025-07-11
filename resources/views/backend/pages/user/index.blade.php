@@ -1,3 +1,6 @@
+@php
+    $usr = Auth::guard('web')->user();
+@endphp
 @extends('backend.layout.template')
 @section('title', 'Users')
 @section('user', 'active')
@@ -28,27 +31,35 @@
                         </div>
 
                         <!-- Filters and Button aligned right -->
-                        <div class="d-flex flex-column flex-md-row align-items-end align-items-md-center justify-content-md-end">
-                            <div class="dt-action-buttons d-flex flex-column align-items-start align-items-sm-center justify-content-sm-center pt-0 gap-sm-4 gap-sm-0 flex-sm-row">
+                        <div
+                            class="d-flex flex-column flex-md-row align-items-end align-items-md-center justify-content-md-end">
+                            <div
+                                class="dt-action-buttons d-flex flex-column align-items-start align-items-sm-center justify-content-sm-center pt-0 gap-sm-4 gap-sm-0 flex-sm-row">
                                 <div class="dataTables_length mx-n2" id="DataTables_Table_0_length">
                                     <label>
-                                        <input type="text" id="filterData" name="filterData" class="form-control" placeholder="Search By User Name/Email" style="width: 240px;" autocomplete="off">
+                                        <input type="text" id="filterData" name="filterData" class="form-control"
+                                            placeholder="Search By User Name/Email" style="width: 240px;"
+                                            autocomplete="off">
                                     </label>
 
                                     <label>
-                                        <select class="form-select js-select2" name="status" id="filterStatus" data-placeholder="Select Status">
+                                        <select class="form-select js-select2" name="status" id="filterStatus"
+                                            data-placeholder="Select Status">
                                             <option value="2">All Users</option>
                                             <option value="1">Active</option>
                                             <option value="0">Inactive</option>
                                         </select>
                                     </label>
                                 </div>
-
-                                <div class="dt-buttons btn-group flex-wrap d-flex mb-6 mb-sm-0">
-                                    <button id="createUserBtn" class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light" type="button">
-                                        <span><i class="ti ti-plus me-1 ti-xs"></i>Create User</span>
-                                    </button>
-                                </div>
+                                @if ($usr->can('user.create'))
+                                    <div class="dt-buttons btn-group flex-wrap d-flex mb-6 mb-sm-0">
+                                        <button id="createUserBtn"
+                                            class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light"
+                                            type="button">
+                                            <span><i class="ti ti-plus me-1 ti-xs"></i>Create User</span>
+                                        </button>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -104,11 +115,15 @@
                             type: "GET",
                             success: function(response) {
                                 if (response.status === 'success') {
-                                    Swal.fire("Soft Deleted!", response.message, "success");
+                                    Swal.fire("Soft Deleted!", response.message,
+                                        "success");
                                 } else {
-                                    Swal.fire("Soft Deleted!", response.message, "warning");
+                                    Swal.fire("Soft Deleted!", response.message,
+                                        "warning");
                                 }
-                                const CurrentPageUrl = "{{ route('dashboard.user.loadMoreUser') }}?page=" + currentPage;
+                                const CurrentPageUrl =
+                                    "{{ route('dashboard.user.loadMoreUser') }}?page=" +
+                                    currentPage;
                                 fetchDataList(CurrentPageUrl);
                             },
                             error: function(xhr, status, error) {

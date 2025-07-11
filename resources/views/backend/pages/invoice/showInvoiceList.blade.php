@@ -6,7 +6,9 @@
             <th class="text-nowrap">Dealer Code</th>
             <th class="text-nowrap">Total Quantity</th>
             <th class="text-nowrap">Total Amount</th>
-            <th class="text-nowrap">Action</th>
+            @if ($user->can('invoice.print') || $user->can('invoice.delete'))
+                <th class="text-nowrap">Action</th>
+            @endif
         </tr>
     </thead>
 
@@ -20,26 +22,36 @@
                     <td>{{ $invoice->dealer->dealer_code }}</td>
                     <td>{{ $invoice->total_qty }}</td>
                     <td>{{ $invoice->total_amount }}</td>
-                    <td>
-                        <div class="">
-                            <!-- Print Button -->
-                            <form action="{{ route('dashboard.invoicePrint.print') }}" method="GET" target="_blank" style="display: inline-block; margin-right: 5px;">
-                                <input type="hidden" name="invoice_number" value="{{ $invoice->invoice_number }}">
-                                <button type="submit" class="btn btn-sm btn-success btn-text-secondary rounded-pill waves-effect btn-icon printSticker">
-                                    <i class="fa-solid fa-print"></i>
-                                </button>
-                            </form>
-
-                            <!-- Delete Button -->
-                            <form id="deleteInvoiceForm" style="display: inline-block;">
-                                <input type="hidden" name="invoice_number" id="invoice_number" value="{{ $invoice->invoice_number }}">
-                                <button type="button" class="btn btn-sm btn-danger btn-text-secondary rounded-pill waves-effect btn-icon"
-                                    id="confirmDeleteBtn" data-url="{{ route('dashboard.invoice.delete') }}">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
+                    @if ($user->can('invoice.print') || $user->can('invoice.delete'))
+                        <td>
+                            <div class="">
+                                <!-- Print Button -->
+                                @if ($user->can('invoice.print'))
+                                    <form action="{{ route('dashboard.invoicePrint.print') }}" method="GET"
+                                        target="_blank" style="display: inline-block; margin-right: 5px;">
+                                        <input type="hidden" name="invoice_number"
+                                            value="{{ $invoice->invoice_number }}">
+                                        <button type="submit"
+                                            class="btn btn-sm btn-success btn-text-secondary rounded-pill waves-effect btn-icon printSticker">
+                                            <i class="fa-solid fa-print"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                                <!-- Delete Button -->
+                                @if ($user->can('invoice.delete'))
+                                    <form id="deleteInvoiceForm" style="display: inline-block;">
+                                        <input type="hidden" name="invoice_number" id="invoice_number"
+                                            value="{{ $invoice->invoice_number }}">
+                                        <button type="button"
+                                            class="btn btn-sm btn-danger btn-text-secondary rounded-pill waves-effect btn-icon"
+                                            id="confirmDeleteBtn" data-url="{{ route('dashboard.invoice.delete') }}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    @endif
                 </tr>
                 @php $s++; @endphp
             @endforeach
@@ -57,6 +69,6 @@
 
 <div id="pagination-container" style="margin-top: 10px;">
     {{ $invoices->links('backend.pagination.custom', [
-        'paginator' => $invoices->onEachSide(1)->withQueryString()->setPageName('page')->setPath(route('dashboard.invoice.loadMoreData'))
+        'paginator' => $invoices->onEachSide(1)->withQueryString()->setPageName('page')->setPath(route('dashboard.invoice.loadMoreData')),
     ]) }}
 </div>

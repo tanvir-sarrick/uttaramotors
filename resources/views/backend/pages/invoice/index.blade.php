@@ -1,3 +1,6 @@
+@php
+    $user = Auth::guard('web')->user();
+@endphp
 @extends('backend.layout.template')
 @section('title', 'All Invoice')
 @section('all_invoice', 'active')
@@ -33,17 +36,22 @@
                                 <div class="dataTables_length mx-n2" id="DataTables_Table_0_length">
                                     <label>
                                         <input type="text" id="filterData" class="form-control" name="filterData"
-                                            placeholder="Search By Invoice No./ Dealer Code" style="width: 270px;" autocomplete="off">
+                                            placeholder="Search By Invoice No./ Dealer Code" style="width: 270px;"
+                                            autocomplete="off">
                                     </label>
                                     {{-- <label>
                                         <input type="text" class="form-control" placeholder="Search By Dealer">
                                     </label> --}}
                                 </div>
-                                <div class="dt-buttons btn-group flex-wrap d-flex mb-6 mb-sm-0">
-                                    <button id="importInvoiceBtn" class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light" type="button">
-                                        <span><i class="ti ti-plus me-1 ti-xs"></i>Import Invoice</span>
-                                    </button>
-                                </div>
+                                @if ($user->can('invoice.import'))
+                                    <div class="dt-buttons btn-group flex-wrap d-flex mb-6 mb-sm-0">
+                                        <button id="importInvoiceBtn"
+                                            class="btn btn-secondary add-new btn-primary ms-2 ms-sm-0 waves-effect waves-light"
+                                            type="button">
+                                            <span><i class="ti ti-plus me-1 ti-xs"></i>Import Invoice</span>
+                                        </button>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -75,7 +83,7 @@
             let currentPage = 1;
 
             // Import Invoice page Start
-            $('#importInvoiceBtn').click(function (e) {
+            $('#importInvoiceBtn').click(function(e) {
                 e.preventDefault();
                 var redirectUrl = "{{ route('dashboard.invoice.import_index') }}";
                 window.location.href = redirectUrl;
@@ -83,7 +91,7 @@
             // Import Invoice page End
 
             // Invoice Delete part start
-            $(document).on("click", "#confirmDeleteBtn", function (e) {
+            $(document).on("click", "#confirmDeleteBtn", function(e) {
                 e.preventDefault();
 
                 const url = $(this).data("url");
@@ -105,7 +113,7 @@
                             data: {
                                 invoice_number: invoiceNumber,
                             },
-                            success: function (response) {
+                            success: function(response) {
                                 if (response.status === 'success') {
                                     Swal.fire("Deleted!", response.message, "success");
                                     fetchDataList(CurrentPageUrl);
@@ -114,8 +122,10 @@
                                     fetchDataList(CurrentPageUrl);
                                 }
                             },
-                            error: function (xhr, status, error) {
-                                Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+                            error: function(xhr, status, error) {
+                                Swal.fire("Error!",
+                                    "Something went wrong. Please try again.",
+                                    "error");
                             },
                         });
                     }
@@ -143,7 +153,8 @@
                             // If current page is empty and not first page, go back one page
                             if (currentPage > 1) {
                                 currentPage--;
-                                const CurrentPageUrl = "{{ route('dashboard.invoice.loadMoreData') }}?page=" + currentPage;
+                                const CurrentPageUrl =
+                                    "{{ route('dashboard.invoice.loadMoreData') }}?page=" + currentPage;
                                 fetchDataList(CurrentPageUrl); // retry with previous page
                             } else {
                                 $('.dataList').html(html);

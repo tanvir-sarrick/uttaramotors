@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <style>
         @page {
@@ -44,6 +45,7 @@
     </style>
 </head>
 {{-- This is For mPDF --}}
+
 <body>
     @foreach ($items as $item)
         <div class="label {{ !$loop->last ? 'page-break' : '' }}">
@@ -51,9 +53,10 @@
                 {{ $item->part_id }} {{ $item->description }} Qty. {{ $item->qty }}
             </div>
             <div class="qr-code">
-                <img src="{{ $qrCode }}" alt="QR Code" width="60" height="60">
+                <img src="{{ $item->qrCode }}" alt="QR Code" width="60" height="60">
             </div>
         </div>
     @endforeach
 </body>
+
 </html>

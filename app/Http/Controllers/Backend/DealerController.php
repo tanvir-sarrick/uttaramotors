@@ -2,26 +2,28 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Http\Controllers\Controller;
 use App\Models\Dealer;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class DealerController extends Controller
 {
     public function index(Request $request)
     {
+        abort_unless(Auth::user()->can('dealer.manage'), 403, 'Unauthorized');
         try {
             $dealers = Dealer::query()->orderBy('created_at', 'desc');
 
             $dealers = $dealers->paginate(2);
 
-            if($request->ajax()){
+            if ($request->ajax()) {
                 $data = view('backend.pages.dealer.showDealerList', compact('dealers'))->render();
                 return response()->json(['data' => $data]);
             }
 
-            return view('backend.pages.dealer.index',compact('dealers'));
+            return view('backend.pages.dealer.index', compact('dealers'));
         } catch (\Exception $th) {
             return response()->json([
                 'atert_type' => 'error',
@@ -32,15 +34,17 @@ class DealerController extends Controller
 
     public function loadMoreDealer(Request $request)
     {
+        abort_unless(Auth::user()->can('dealer.manage'), 403, 'Unauthorized');
         try {
             $query = Dealer::orderBy('created_at', 'desc');
 
             if ($request->filled('filterData')) {
                 $data = $request->input('filterData');
 
-                $query->where(fn($q) => $q
-                    ->where('dealer_code', 'like', "%$data%")
-                    ->orWhere('dealer_name', 'like', "%$data%")
+                $query->where(
+                    fn($q) => $q
+                        ->where('dealer_code', 'like', "%$data%")
+                        ->orWhere('dealer_name', 'like', "%$data%")
                 );
             }
 
@@ -59,7 +63,6 @@ class DealerController extends Controller
             return response()->json([
                 'data' => $data,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'alert_type' => 'error',
@@ -70,14 +73,16 @@ class DealerController extends Controller
 
     public function filterDealerData(Request $request)
     {
+        abort_unless(Auth::user()->can('dealer.manage'), 403, 'Unauthorized');
         try {
             $query = Dealer::orderBy('created_at', 'desc');
 
             if ($request->filled('filterData')) {
                 $data = $request->input('filterData');
-                $query->where(fn($q) => $q
-                    ->where('dealer_code', 'like', "%$data%")
-                    ->orWhere('dealer_name', 'like', "%$data%")
+                $query->where(
+                    fn($q) => $q
+                        ->where('dealer_code', 'like', "%$data%")
+                        ->orWhere('dealer_name', 'like', "%$data%")
                 );
             }
 
@@ -97,7 +102,6 @@ class DealerController extends Controller
             return response()->json([
                 'data' => $data,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'alert_type' => 'error',
@@ -108,11 +112,13 @@ class DealerController extends Controller
 
     public function create()
     {
+        abort_unless(Auth::user()->can('dealer.create'), 403, 'Unauthorized');
         return view('backend.pages.dealer.create');
     }
 
     public function store(Request $request)
     {
+        abort_unless(Auth::user()->can('dealer.create'), 403, 'Unauthorized');
         // Validation with default messages
         $validator = Validator::make($request->all(), [
             'dealer_code'  => 'required|max:50|unique:dealers,dealer_code',
@@ -121,8 +127,8 @@ class DealerController extends Controller
 
         if ($validator->fails()) {
             return redirect()->back()
-                            ->withErrors($validator)
-                            ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         // Create and save dealer
@@ -137,15 +143,17 @@ class DealerController extends Controller
 
     public function edit($id)
     {
+        abort_unless(Auth::user()->can('dealer.edit'), 403, 'Unauthorized');
         $dealer = Dealer::find($id);
 
-        if( !is_null($dealer) ){
+        if (!is_null($dealer)) {
             return view('backend.pages.dealer.edit', compact('dealer'));
         }
     }
 
     public function update(Request $request, $id)
     {
+        abort_unless(Auth::user()->can('dealer.edit'), 403, 'Unauthorized');
         $dealer = Dealer::findOrFail($id);
 
         // Validate only relevant fields
@@ -156,8 +164,8 @@ class DealerController extends Controller
 
         if ($validator->fails()) {
             return redirect()->back()
-                            ->withErrors($validator)
-                            ->withInput();
+                ->withErrors($validator)
+                ->withInput();
         }
 
         // Update user
@@ -172,23 +180,24 @@ class DealerController extends Controller
 
     public function destroy(Request $request, $id)
     {
+        abort_unless(Auth::user()->can('dealer.delete'), 403, 'Unauthorized');
         $dealer = Dealer::findOrFail($id);
         //dd($user);
-        if( !is_null($dealer) ){
-           if ($dealer->status === 1) {
-            $status = 0;
-            $dealer->update([
-                'status' => $status,
-                // 'updated_by' => Auth::id(),
-            ]);
+        if (!is_null($dealer)) {
+            if ($dealer->status === 1) {
+                $status = 0;
+                $dealer->update([
+                    'status' => $status,
+                    // 'updated_by' => Auth::id(),
+                ]);
 
-            return response()->json([
-                'success' => true,
-                'status' => 'success',
-                "message" => "This dealer has been softdeleted successfully",
-                "url" => route('dashboard.dealer.index')
-            ]);
-            }else{
+                return response()->json([
+                    'success' => true,
+                    'status' => 'success',
+                    "message" => "This dealer has been softdeleted successfully",
+                    "url" => route('dashboard.dealer.index')
+                ]);
+            } else {
                 return response()->json([
                     'success' => true,
                     'status' => 'warning',
@@ -196,8 +205,7 @@ class DealerController extends Controller
                     "url" => route('dashboard.dealer.index')
                 ]);
             }
-        }
-        else{
+        } else {
             return response()->json([
                 "message" => "No Dealer found for the specified ID.",
                 "url" => route('dashboard.dealer.index')
