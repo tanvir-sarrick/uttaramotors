@@ -23,6 +23,11 @@
                     </div>
 
                     <h4 class="mb-1">Login 👋</h4>
+                    @if (session('status'))
+                        <div class="text-success mb-4">
+                            {{ session('status') }}
+                        </div>
+                    @endif
                     <form class="mb-6" method="POST" action="{{ route('login') }}">
                         @csrf
                         <div class="mb-6">
@@ -46,9 +51,7 @@
                             <div class="d-flex justify-content-between">
                                 <div class="form-check mb-0 ms-2">
                                     <input class="form-check-input" type="checkbox" id="remember_me" name="remember">
-                                    <label class="form-check-label" for="remember_me">
-                                        Remember Me
-                                    </label>
+                                    <label class="form-check-label" for="remember_me">Remember Me</label>
                                 </div>
                                 <a href="{{ route('password.request') }}">
                                     <p class="mb-0">Forgot Password?</p>

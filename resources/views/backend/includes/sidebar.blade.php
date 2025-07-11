@@ -3,7 +3,7 @@
 @endphp
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
-        <a href="{{ route('dashboard.index') }}" class="app-brand-link">
+        <a href="{{ route('dashboard.home.index') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
                 <!-- Full Logo (when expanded) -->
                 <img src="{{ asset('backend/assets/img/uttara_logo_bgwhite.png') }}"
@@ -30,7 +30,7 @@
     <ul class="menu-inner py-1">
         <!-- Dashboards -->
         <li class="menu-item @yield('home')">
-            <a href="{{ route('dashboard.index') }}" class="menu-link">
+            <a href="{{ route('dashboard.home.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons ti ti-smart-home"></i>
                 <div data-i18n="Dashboards">Dashboard</div>
             </a>

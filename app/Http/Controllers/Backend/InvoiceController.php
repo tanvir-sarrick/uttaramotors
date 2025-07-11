@@ -93,85 +93,6 @@ class InvoiceController extends Controller
         }
     }
 
-    // {
-    //     try {
-    //         // Start query builder
-    //         $invoices = Invoice::query()
-    //             ->select(
-    //                 'invoice_number',
-    //                 'dealer_id',
-    //                 DB::raw('SUM(qty) as total_qty'),
-    //                 DB::raw('SUM(amount) as total_amount'),
-    //                 DB::raw('MAX(created_at) as created_at')
-    //             );
-
-    //         $invoice_no = $request->input('invoice_no');
-    //         // Apply filter if invoice_no is given
-    //         if ($invoice_no != null) {
-    //             $invoices->where('invoice_number', 'like', '%' . $invoice_no . '%');
-    //         }
-
-    //         // Grouping and pagination
-    //         $invoices = $invoices
-    //             ->groupBy('invoice_number', 'dealer_id')
-    //             ->orderByDesc(DB::raw('MAX(created_at)'))
-    //             ->paginate(2);
-
-
-    //         $data = view('backend.pages.invoice.showInvoiceList', compact('invoices'))->render();
-
-    //         return response()->json([
-    //             'data' => $data,
-    //             'count' => $invoices->count()
-    //         ]);
-    //     } catch (\Exception $th) {
-    //         return response()->json([
-    //             'atert_type' => 'error',
-    //             'message'    => $th->getmessage(),
-    //         ]);
-    //     }
-    // }
-
-    // public function filterData(Request $request)
-    // {
-    //     try {
-    //         // Start query builder
-    //         $invoices = Invoice::with('dealer')
-    //             ->select(
-    //                 'invoice_number',
-    //                 'dealer_id',
-    //                 DB::raw('SUM(qty) as total_qty'),
-    //                 DB::raw('SUM(amount) as total_amount'),
-    //                 DB::raw('MAX(created_at) as created_at')
-    //             );
-
-    //         $invoice_no = $request->input('invoice_no');
-
-    //         // Apply filter if invoice_no is given
-    //         if ($invoice_no != null) {
-    //             $invoices->where('invoice_number', 'like', '%' . $invoice_no . '%');
-    //         }
-
-    //         // Grouping and pagination
-    //         $invoices = $invoices
-    //             ->groupBy('invoice_number', 'dealer_id')
-    //             ->orderByDesc(DB::raw('MAX(created_at)'))
-    //             ->paginate(2);
-
-
-    //         $data = view('backend.pages.invoice.showInvoiceList', compact('invoices'))->render();
-
-    //         return response()->json([
-    //             'data' => $data,
-    //         ]);
-    //     } catch (\Exception $th) {
-    //         return response()->json([
-    //             'atert_type' => 'error',
-    //             'message'    => $th->getmessage(),
-    //         ]);
-    //     }
-    // }
-
     public function filterData(Request $request)
     {
         try {
@@ -251,6 +172,7 @@ class InvoiceController extends Controller
             Excel::import(new InvoicesImport($invoiceNumber, $userId, $dealerId), $request->file('file'));
 
             return back()->with('success', 'Invoices imported successfully.');
+
         } catch (ExcelValidationException  $e) {
             // Get all failures with row and message
             $failures = $e->failures();

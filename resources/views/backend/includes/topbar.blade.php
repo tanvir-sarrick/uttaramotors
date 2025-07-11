@@ -24,36 +24,34 @@
             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                        <img src="{{ Auth::user()->image ? asset('backend/assets/img/avatars/' . Auth::user()->image) : asset('backend/assets/img/avatars/1.png') }}" alt="" class="rounded-circle">
+                        <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : asset('backend/assets/img/avatars/1.png') }}" alt="" class="rounded-circle">
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
-                        <a class="dropdown-item mt-0" href="">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-shrink-0 me-2">
-                                    <div class="avatar avatar-online">
-                                        <img src="{{ Auth::guard('web')->user()->image ? asset('backend/assets/img/avatars/' . Auth::guard('web')->user()->image) : asset('backend/assets/img/avatars/1.png') }}" alt="" class="rounded-circle">
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-0">{{ Auth::guard('web')->user()->name }}</h6>
-                                    <small class="text-muted">{{ Auth::guard('web')->user()->email }}</small>
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-2">
+                                <div class="avatar avatar-online">
+                                    <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : asset('backend/assets/img/avatars/1.png') }}" alt="" class="rounded-circle">
                                 </div>
                             </div>
-                        </a>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">{{ Auth::guard('web')->user()->name }}</h6>
+                                <small class="text-muted">{{ Auth::guard('web')->user()->email }}</small>
+                            </div>
+                        </div>
                     </li>
                     <li>
                         <div class="dropdown-divider my-1 mx-n2"></div>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="">
+                        <a class="dropdown-item d-flex align-items-center" href="{{ route('dashboard.profile.edit') }}">
                             <i class="ti ti-user me-3 ti-md"></i><span class="align-middle">My Profile</span>
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="">
-                            <i class="ti ti-settings me-3 ti-md"></i><span class="align-middle">Reset Password</span>
+                        <a class="dropdown-item d-flex align-items-center" href="{{ route('dashboard.password.index') }}">
+                        <i class="ti ti-settings me-3 ti-md"></i><span class="align-middle">Reset Password</span>
                         </a>
                     </li>
                     <li>

@@ -2,28 +2,43 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules\Password;
 
 class PasswordController extends Controller
 {
-    /**
-     * Update the user's password.
-     */
+    public function index()
+    {
+        return view('backend.pages.confirm_resetpassword');
+    }
+
+    public function reset()
+    {
+        return view('backend.pages.resetpassword');
+    }
+
     public function update(Request $request): RedirectResponse
     {
-        $validated = $request->validateWithBag('updatePassword', [
-            'current_password' => ['required', 'current_password'],
+        $request->validate([
+            'current_password' => ['required'],
             'password' => ['required', Password::defaults(), 'confirmed'],
         ]);
 
-        $request->user()->update([
-            'password' => Hash::make($validated['password']),
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withInput()->with('error', 'The current password is incorrect.');
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password)
         ]);
 
-        return back()->with('status', 'password-updated');
+        return back()->with('success', 'Password updated successfully!');
     }
 }
