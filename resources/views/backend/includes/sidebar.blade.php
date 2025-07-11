@@ -6,16 +6,12 @@
         <a href="{{ route('dashboard.home.index') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
                 <!-- Full Logo (when expanded) -->
-                <img src="{{ asset('backend/assets/img/uttara_logo_bgwhite.png') }}"
-                    alt="Uttara Motors Full Logo"
-                    class="logo-expanded"
-                    style="height: 100px; width: auto;">
+                <img src="{{ asset('backend/assets/img/uttara_logo_bgwhite.png') }}" alt="Uttara Motors Full Logo"
+                    class="logo-expanded" style="height: 100px; width: auto;">
 
                 <!-- Icon Only (when collapsed) -->
-                <img src="{{ asset('backend/assets/img/favicon/uttaraIcon.png') }}"
-                    alt="Uttara Motors Icon"
-                    class="logo-collapsed"
-                    style="height: 40px; width: 40px;">
+                <img src="{{ asset('backend/assets/img/favicon/uttaraIcon.png') }}" alt="Uttara Motors Icon"
+                    class="logo-collapsed" style="height: 40px; width: 40px;">
             </span>
         </a>
 
@@ -40,56 +36,63 @@
         <li class="menu-header small">
             <span class="menu-header-text" data-i18n="Apps & Pages">Apps &amp; Pages</span>
         </li>
-        <li class="menu-item @yield('invoice')">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons ti ti-files"></i>
-                <div data-i18n="Invoice">Invoice</div>
-            </a>
-            <ul class="menu-sub">
-                <li class="menu-item @yield('import_invoice')">
-                    <a href="{{ route('dashboard.invoice.import_index') }}" class="menu-link">
-                        <div data-i18n="Import Invoice">Import Invoice</div>
-                    </a>
-                </li>
-                {{-- @if ($user->can('invoice.manage')) --}}
-                <li class="menu-item @yield('all_invoice')">
-                    <a href="{{ route('dashboard.invoice.index') }}" class="menu-link">
-                        <div data-i18n="All Invoices">All Invoices</div>
-                    </a>
-                </li>
-                {{-- @endif --}}
-            </ul>
-        </li>
-
-        <li class="menu-item @yield('dealer')">
-            <a href="{{ route('dashboard.dealer.index') }}" class="menu-link">
-                <i class=" menu-icon tf-icons ti ti-user"></i>
-                <div data-i18n="Dealers">Dealers</div>
-            </a>
-        </li>
-
+        @if ($user->can('invoice.manage') || $user->can('invoice.import'))
+            <li class="menu-item @yield('invoice')">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons ti ti-files"></i>
+                    <div data-i18n="Invoice">Invoice</div>
+                </a>
+                <ul class="menu-sub">
+                    @if ($user->can('invoice.import'))
+                        <li class="menu-item @yield('import_invoice')">
+                            <a href="{{ route('dashboard.invoice.import_index') }}" class="menu-link">
+                                <div data-i18n="Import Invoice">Import Invoice</div>
+                            </a>
+                        </li>
+                    @endif
+                    @if ($user->can('invoice.manage'))
+                        <li class="menu-item @yield('all_invoice')">
+                            <a href="{{ route('dashboard.invoice.index') }}" class="menu-link">
+                                <div data-i18n="All Invoices">All Invoices</div>
+                            </a>
+                        </li>
+                    @endif
+                </ul>
+            </li>
+        @endif
+        @if ($user->can('dealer.manage'))
+            <li class="menu-item @yield('dealer')">
+                <a href="{{ route('dashboard.dealer.index') }}" class="menu-link">
+                    <i class=" menu-icon tf-icons ti ti-user"></i>
+                    <div data-i18n="Dealers">Dealers</div>
+                </a>
+            </li>
+        @endif
         <div style="margin: 15px 0;height: 3px;background: #988ff4;width: 100%;"></div>
-
-        <li class="menu-item @yield('settings')">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons ti ti-settings"></i>
-                <div data-i18n="Settings">Settings</div>
-            </a>
-            <ul class="menu-sub">
-                @if ($user->can('user.manage'))
-                    <li class="menu-item @yield('user')">
-                        <a href="{{ route('dashboard.user.index') }}" class="menu-link">
-                            <div data-i18n="Users">Users</div>
-                        </a>
-                    </li>
-                @endif
-                <li class="menu-item @yield('app_setup')">
-                    <a href="" class="menu-link">
-                        <div data-i18n="Website Setting">App Setup</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
+        @if ($user->can('user.manage') || $user->can('appsetup.manage'))
+            <li class="menu-item @yield('settings')">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons ti ti-settings"></i>
+                    <div data-i18n="Settings">Settings</div>
+                </a>
+                <ul class="menu-sub">
+                    @if ($user->can('user.manage'))
+                        <li class="menu-item @yield('user')">
+                            <a href="{{ route('dashboard.user.index') }}" class="menu-link">
+                                <div data-i18n="Users">Users</div>
+                            </a>
+                        </li>
+                    @endif
+                    @if ($user->can('appsetup.manage') || $user->can('appsetup.edit'))
+                        <li class="menu-item @yield('app_setup')">
+                            <a href="" class="menu-link">
+                                <div data-i18n="Website Setting">App Setup</div>
+                            </a>
+                        </li>
+                    @endif
+                </ul>
+            </li>
+        @endif
 
         @if ($user->can('permission.manage') || $user->can('role.manage'))
             <li class="menu-item">

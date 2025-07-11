@@ -19,6 +19,8 @@ class InvoiceController extends Controller
 {
     public function index(Request $request)
     {
+        abort_unless(Auth::user()->can('invoice.manage'), 403, 'Unauthorized');
+
         try {
             $invoices = Invoice::with('dealer')
                 ->select(
@@ -48,6 +50,7 @@ class InvoiceController extends Controller
 
     public function loadMoreData(Request $request)
     {
+        abort_unless(Auth::user()->can('invoice.manage'), 403, 'Unauthorized');
         try {
             // Get input from a single filter input
             $filterData = $request->input('filterData');
@@ -66,9 +69,9 @@ class InvoiceController extends Controller
             if (!empty($filterData)) {
                 $invoices->where(function ($q) use ($filterData) {
                     $q->where('invoice_number', 'like', '%' . $filterData . '%')
-                    ->orWhereHas('dealer', function ($q2) use ($filterData) {
-                        $q2->where('dealer_code', 'like', '%' . $filterData . '%');
-                    });
+                        ->orWhereHas('dealer', function ($q2) use ($filterData) {
+                            $q2->where('dealer_code', 'like', '%' . $filterData . '%');
+                        });
                 });
             }
 
@@ -95,6 +98,8 @@ class InvoiceController extends Controller
 
     public function filterData(Request $request)
     {
+        abort_unless(Auth::user()->can('invoice.manage'), 403, 'Unauthorized');
+
         try {
             // Store the input value from 'filterData'
             $filterData = $request->input('filterData');
@@ -113,9 +118,9 @@ class InvoiceController extends Controller
                 ->when($filterData, function ($query, $filterData) {
                     $query->where(function ($q) use ($filterData) {
                         $q->where('invoice_number', 'like', '%' . $filterData . '%')
-                        ->orWhereHas('dealer', function ($q2) use ($filterData) {
-                            $q2->where('dealer_code', 'like', '%' . $filterData . '%');
-                        });
+                            ->orWhereHas('dealer', function ($q2) use ($filterData) {
+                                $q2->where('dealer_code', 'like', '%' . $filterData . '%');
+                            });
                     });
                 })
                 ->groupBy('invoice_number', 'dealer_id')
@@ -138,6 +143,8 @@ class InvoiceController extends Controller
 
     public function import_index()
     {
+        abort_unless(Auth::user()->can('invoice.import'), 403, 'Unauthorized');
+
         $userId = $userId = Auth::user()->id;
 
         if ($userId) {
@@ -154,6 +161,8 @@ class InvoiceController extends Controller
 
     public function import(Request $request)
     {
+        abort_unless(Auth::user()->can('invoice.import'), 403, 'Unauthorized');
+
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls,xlsm|max:2048',
         ]);
@@ -184,6 +193,8 @@ class InvoiceController extends Controller
 
     public function clear(Request $request)
     {
+        abort_unless(Auth::user()->can('invoice.import'), 403, 'Unauthorized');
+
         $userId = $userId = Auth::user()->id;
 
         if ($userId) {
@@ -196,6 +207,8 @@ class InvoiceController extends Controller
 
     public function delete(Request $request)
     {
+        abort_unless(Auth::user()->can('invoice.delete'), 403, 'Unauthorized');
+
         $invoice_number = $request->invoice_number;
 
         if ($invoice_number) {

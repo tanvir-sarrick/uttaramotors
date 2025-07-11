@@ -7,9 +7,10 @@ use Mpdf\Mpdf;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
-use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 
 class InvoicePrintController extends Controller
 {
@@ -115,6 +116,8 @@ class InvoicePrintController extends Controller
 
     public function printSnappy(Request $request)
     {
+        abort_unless(Auth::user()->can('invoice.print'), 403, 'Unauthorized');
+
         $items = Invoice::where('invoice_number', $request->invoice_number)->get();
 
         $expandedItems = collect();
@@ -159,8 +162,9 @@ class InvoicePrintController extends Controller
         return $pdf->stream($filename);
     }
 
-    public function print(Request $request)
+    public function printOld(Request $request)
     {
+        abort_unless(Auth::user()->can('invoice.print'), 403, 'Unauthorized');
         // Just this one line is enough in most cases:
         ini_set('pcre.backtrack_limit', '10000000');
 
@@ -220,4 +224,90 @@ class InvoicePrintController extends Controller
             ->header('Content-Type', 'application/pdf');
     }
 
+    public function print(Request $request)
+    {
+        $start = microtime(true); // Start profiling
+
+        abort_unless(Auth::user()->can('invoice.print'), 403, 'Unauthorized');
+        ini_set('pcre.backtrack_limit', '1000000000');
+
+        $items = Invoice::where('invoice_number', $request->invoice_number)->get();
+
+        // Cache QR codes by description to avoid regenerating same QR multiple times
+        $qrCache = [];
+
+        $expandedItems = $items->flatMap(function ($item) use (&$qrCache) {
+            return collect(range(1, $item->qty))->map(function () use ($item, &$qrCache) {
+                $clone = clone $item;
+                $clone->qty = 1;
+                $clone->amount = $item->rate;
+
+                // QR code using description
+                //$descriptionKey  = urlencode(($item->description ?? 'no-description') . '-' . $item->invoice_number);
+                $descriptionRaw = $item->description ?? 'no-description';
+                $invoiceNumber = $item->invoice_number;
+
+                // Create the URL with query parameters safely encoded
+                $url = 'https://qrcode.globalinformatics.com.bd/check?' . http_build_query([
+                    'description' => $descriptionRaw,
+                    'invoice_number' => $invoiceNumber,
+                ]);
+
+                // Cache key to avoid regenerating same QR code multiple times
+                $cacheKey = urlencode($descriptionRaw . '-' . $invoiceNumber);
+
+                if (!isset($qrCache[$cacheKey])) {
+                    $qrPng = QrCode::format('svg')->size(70)->generate($url);
+                    $qrCache[$cacheKey] = 'data:image/svg+xml;base64,' . base64_encode($qrPng);
+                }
+
+                $clone->qrCode = $qrCache[$cacheKey];
+                return $clone;
+            });
+        });
+
+        // Data to send to Blade view
+        $data = [
+            'title' => 'Welcome to Global Informatics Limited.',
+            'date'  => now()->format('m/d/Y'),
+            'items' => $expandedItems,
+        ];
+
+        $filename = 'sticker-' . $request->invoice_number . '.pdf';
+
+        // Render Blade to HTML
+        $html = view('backend.pages.sticker.print', $data)->render();
+
+        // PDF page size
+        $pageWidth = 135 * 0.3528;
+        $pageHeight = 235 * 0.3528;
+
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => [$pageWidth, $pageHeight],
+            'orientation' => 'L',
+            'tempDir' => storage_path('app/mpdf-temp'), // improve disk performance
+            'margin_top' => 0,
+            'margin_bottom' => 0,
+            'margin_left' => 0,
+            'margin_right' => 0,
+            'useSubstitutions' => false,
+            'use_kwt' => false,
+        ]);
+
+        $mpdf->WriteHTML($html);
+
+        // End profiling
+        $end = microtime(true);
+        \Log::info('Sticker PDF generation time: ' . round($end - $start, 2) . ' seconds');
+
+        if ($request->has('download')) {
+            return response($mpdf->Output($filename, 'S'))
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', "attachment; filename=\"$filename\"");
+        }
+
+        return response($mpdf->Output($filename, 'I'))
+            ->header('Content-Type', 'application/pdf');
+    }
 }

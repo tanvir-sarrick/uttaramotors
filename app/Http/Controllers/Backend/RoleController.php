@@ -13,9 +13,7 @@ class RoleController extends Controller
 {
     public function index(Request $request)
     {
-        if (!Auth::user()->can('user.manage')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('role.manage'), 403, 'Unauthorized');
 
         try {
             $all_roles = Role::query()->orderBy('created_at', 'desc');
@@ -38,9 +36,7 @@ class RoleController extends Controller
 
     public function create()
     {
-        if (!Auth::user()->can('user.create')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('role.create'), 403, 'Unauthorized');
 
         $all_permissions = Permission::all();
         $permission_groups = User::getpermissionGroups();
@@ -50,9 +46,8 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
-        if (!Auth::user()->can('user.create')) {
-            return abort(403, 'Unauthorized');
-        }
+
+        abort_unless(Auth::user()->can('role.create'), 403, 'Unauthorized');
 
         // Validation Data
         $validate = $request->validate(
@@ -77,9 +72,7 @@ class RoleController extends Controller
 
     public function edit($id)
     {
-        if (!Auth::user()->can('user.edit')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('role.edit'), 403, 'Unauthorized');
 
         $role = Role::find($id);
 
@@ -93,9 +86,8 @@ class RoleController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!Auth::user()->can('user.edit')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('role.edit'), 403, 'Unauthorized');
+
         // Validation Data
         $validate = $request->validate(
             [

@@ -13,16 +13,12 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        if (!$user->can('user.manage')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('user.manage'), 403, 'Unauthorized');
 
         try {
             $users = User::query()->orderBy('created_at', 'desc')->paginate(2);
 
-            return view('backend.pages.user.index',compact('users'));
+            return view('backend.pages.user.index', compact('users'));
         } catch (\Exception $th) {
             return response()->json([
                 'atert_type' => 'error',
@@ -33,14 +29,16 @@ class UserController extends Controller
 
     public function loadMoreUser(Request $request)
     {
+        abort_unless(Auth::user()->can('user.manage'), 403, 'Unauthorized');
         try {
             $query = User::orderBy('created_at', 'desc');
 
             if ($request->filled('filterData')) {
                 $data = $request->input('filterData');
-                $query->where(fn($q) => $q
-                    ->where('name', 'like', "%$data%")
-                    ->orWhere('email', 'like', "%$data%")
+                $query->where(
+                    fn($q) => $q
+                        ->where('name', 'like', "%$data%")
+                        ->orWhere('email', 'like', "%$data%")
                 );
             }
 
@@ -59,7 +57,6 @@ class UserController extends Controller
             return response()->json([
                 'data' => $data,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'alert_type' => 'error',
@@ -70,14 +67,16 @@ class UserController extends Controller
 
     public function filterUserData(Request $request)
     {
+        abort_unless(Auth::user()->can('user.manage'), 403, 'Unauthorized');
         try {
             $query = User::orderBy('created_at', 'desc');
 
             if ($request->filled('filterData')) {
                 $data = $request->input('filterData');
-                $query->where(fn($q) => $q
-                    ->where('name', 'like', "%$data%")
-                    ->orWhere('email', 'like', "%$data%")
+                $query->where(
+                    fn($q) => $q
+                        ->where('name', 'like', "%$data%")
+                        ->orWhere('email', 'like', "%$data%")
                 );
             }
 
@@ -96,7 +95,6 @@ class UserController extends Controller
             return response()->json([
                 'data' => $data,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'alert_type' => 'error',
@@ -107,11 +105,7 @@ class UserController extends Controller
 
     public function create()
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        if (!$user->can('user.create')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('user.create'), 403, 'Unauthorized');
 
         $all_roles = Role::all();
         return view('backend.pages.user.create', compact('all_roles'));
@@ -119,19 +113,15 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        if (!$user->can('user.create')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('user.create'), 403, 'Unauthorized');
 
         // Validation Data
         $validate = $request->validate(
             [
-                'name'          =>'required|max:100',
-                'email'         =>'required|email|unique:users',
-                'password'      =>'required|min:8',
-                'roles'         =>'required',
+                'name'          => 'required|max:100',
+                'email'         => 'required|email|unique:users',
+                'password'      => 'required|min:8',
+                'roles'         => 'required',
             ],
             [
                 'name.required' => "Please Enter User Name.",
@@ -147,7 +137,7 @@ class UserController extends Controller
         $user->status     = $request->status;
 
         $user->save();
-        if( $request->roles ){
+        if ($request->roles) {
             $user->assignRole($request->roles);
         }
         // dd($user);exit();
@@ -156,37 +146,29 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        if (!$user->can('user.edit')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('user.edit'), 403, 'Unauthorized');
 
         $user = User::find($id);
 
-        if( !is_null($user) ){
+        if (!is_null($user)) {
             $all_roles = Role::all();
-            return view('backend.pages.user.edit', compact('all_roles','user'));
+            return view('backend.pages.user.edit', compact('all_roles', 'user'));
         }
     }
 
     public function update(Request $request, $id)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        if (!$user->can('user.edit')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('user.edit'), 403, 'Unauthorized');
 
         $user   = User::find($id);
-        
-        if( !is_null($user) ){
+
+        if (!is_null($user)) {
             // Validation Data
             $validate = $request->validate(
                 [
-                    'name'          =>'required|max:100',
-                    'email'         =>'required|email|unique:users,email,'.$id,
-                    'roles'         =>'required',
+                    'name'          => 'required|max:100',
+                    'email'         => 'required|email|unique:users,email,' . $id,
+                    'roles'         => 'required',
                 ],
                 [
                     'name.required' => "Please Enter User Name.",
@@ -200,7 +182,7 @@ class UserController extends Controller
 
             $user->save();
             $user->roles()->detach();
-            if( $request->roles ){
+            if ($request->roles) {
                 $user->assignRole($request->roles);
             }
 
@@ -210,36 +192,30 @@ class UserController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        if (!$user->can('user.delete')) {
-            return abort(403, 'Unauthorized');
-        }
+        abort_unless(Auth::user()->can('user.delete'), 403, 'Unauthorized');
 
         $user = User::findOrFail($id);
         //dd($user);
-        if( !is_null($user) ){
-           if ($user->status === 1) {
-            $status = 0;
-            $user->update([
-                'status' => $status,
-            ]);
+        if (!is_null($user)) {
+            if ($user->status === 1) {
+                $status = 0;
+                $user->update([
+                    'status' => $status,
+                ]);
 
-            return response()->json([
-                'success' => true,
-                'status' => 'success',
-                "message" => "This user has been softdeleted successfully",
-            ]);
-            }else{
+                return response()->json([
+                    'success' => true,
+                    'status' => 'success',
+                    "message" => "This user has been softdeleted successfully",
+                ]);
+            } else {
                 return response()->json([
                     'success' => true,
                     'status' => 'warning',
                     "message" => "This user has already been softdeleted!",
                 ]);
             }
-        }
-        else{
+        } else {
             return response()->json([
                 "message" => "No user found for the specified ID.",
             ]);
