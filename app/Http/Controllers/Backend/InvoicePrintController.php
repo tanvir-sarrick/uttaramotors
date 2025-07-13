@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 // use Dompdf\Dompdf;
+use Illuminate\Support\Facades\Log;
 use Mpdf\Mpdf;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
@@ -14,6 +15,15 @@ use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 
 class InvoicePrintController extends Controller
 {
+    protected $user;
+
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::user();
+            return $next($request);
+        });
+    }
     // public function printBasic(Request $request)
     // {
     //     $items = Invoice::where('invoice_number', $request->invoice_number)->get();
@@ -116,7 +126,7 @@ class InvoicePrintController extends Controller
 
     public function printSnappy(Request $request)
     {
-        abort_unless(Auth::user()->can('invoice.print'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.print'), 403, 'Unauthorized');
 
         $items = Invoice::where('invoice_number', $request->invoice_number)->get();
 
@@ -164,7 +174,7 @@ class InvoicePrintController extends Controller
 
     public function printOld(Request $request)
     {
-        abort_unless(Auth::user()->can('invoice.print'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.print'), 403, 'Unauthorized');
         // Just this one line is enough in most cases:
         ini_set('pcre.backtrack_limit', '10000000');
 
@@ -228,7 +238,7 @@ class InvoicePrintController extends Controller
     {
         $start = microtime(true); // Start profiling
 
-        abort_unless(Auth::user()->can('invoice.print'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.print'), 403, 'Unauthorized');
         ini_set('pcre.backtrack_limit', '1000000000');
 
         $items = Invoice::where('invoice_number', $request->invoice_number)->get();
@@ -268,8 +278,6 @@ class InvoicePrintController extends Controller
 
         // Data to send to Blade view
         $data = [
-            'title' => 'Welcome to Global Informatics Limited.',
-            'date'  => now()->format('m/d/Y'),
             'items' => $expandedItems,
         ];
 
@@ -299,7 +307,7 @@ class InvoicePrintController extends Controller
 
         // End profiling
         $end = microtime(true);
-        \Log::info('Sticker PDF generation time: ' . round($end - $start, 2) . ' seconds');
+        Log::info('Sticker PDF generation time: ' . round($end - $start, 2) . ' seconds');
 
         if ($request->has('download')) {
             return response($mpdf->Output($filename, 'S'))

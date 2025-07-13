@@ -95,7 +95,7 @@
         @endif
 
         @if ($user->can('permission.manage') || $user->can('role.manage'))
-            <li class="menu-item">
+            <li class="menu-item @yield('role_permission')">
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
                     <i class="menu-icon tf-icons ti ti-adjustments-cog"></i>
 
@@ -103,14 +103,14 @@
                 </a>
                 <ul class="menu-sub">
                     @if ($user->can('permission.manage'))
-                        <li class="menu-item">
+                        <li class="menu-item @yield('permission')">
                             <a href="{{ route('dashboard.permission.index') }}" class="menu-link">
                                 <div data-i18n="Manage Permission">Manage Permission</div>
                             </a>
                         </li>
                     @endif
                     @if ($user->can('role.manage'))
-                        <li class="menu-item">
+                        <li class="menu-item @yield('role')">
                             <a href="{{ route('dashboard.role.index') }}" class="menu-link">
                                 <div data-i18n="Manage Role">Manage Role</div>
                             </a>

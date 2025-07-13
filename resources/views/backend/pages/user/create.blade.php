@@ -88,7 +88,7 @@
                     <div class="col-6">
                         <div class="mb-3">
                             <label for="email" class="form-label">Assign Roles <span class="text-danger">*</span></label>
-                            <select class="form-select" id="expenseCategoryFilter" name="roles[]">
+                            <select class="form-select" id="expenseCategoryFilter" name="roles">
                                 <option value="">All User Roles</option>
                                 @foreach ($all_roles as $role)
                                     <option value="{{ $role->name }}">{{ $role->name }}</option>

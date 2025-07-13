@@ -10,9 +10,20 @@ use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {
+
+    protected $user;
+
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::user();
+            return $next($request);
+        });
+    }
+    
     public function index(Request $request)
     {
-        abort_unless(Auth::user()->can('permission.manage'), 403, 'Unauthorized');
+        abort_unless($this->user->can('permission.manage'), 403, 'Unauthorized');
 
         try {
             $permission_groups = User::getpermissionGroups();
@@ -35,14 +46,14 @@ class PermissionController extends Controller
 
     public function create()
     {
-        abort_unless(Auth::user()->can('permission.create'), 403, 'Unauthorized');
+        abort_unless($this->user->can('permission.create'), 403, 'Unauthorized');
         return view('backend.pages.permission.create');
     }
 
 
     public function store(Request $request)
     {
-        abort_unless(Auth::user()->can('permission.create'), 403, 'Unauthorized');
+        abort_unless($this->user->can('permission.create'), 403, 'Unauthorized');
         // Validation Data
         // $validate = $request->validate(
         //     [
@@ -74,7 +85,7 @@ class PermissionController extends Controller
 
     public function edit($group_name)
     {
-        abort_unless(Auth::user()->can('permission.edit'), 403, 'Unauthorized');
+        abort_unless($this->user->can('permission.edit'), 403, 'Unauthorized');
 
         $all_permission = Permission::select('name')->where('group_name', $group_name)->get();
         //dd($all_permission);
@@ -83,7 +94,7 @@ class PermissionController extends Controller
 
     public function update(Request $request, $group_name)
     {
-        abort_unless(Auth::user()->can('permission.edit'), 403, 'Unauthorized');
+        abort_unless($this->user->can('permission.edit'), 403, 'Unauthorized');
 
         $permission = Permission::select('group_name')->where('group_name', $group_name)->groupBy('group_name')->get();
 
@@ -110,7 +121,7 @@ class PermissionController extends Controller
 
     public function destroy(Request $request, $group_name)
     {
-        abort_unless(Auth::user()->can('permission.delete'), 403, 'Unauthorized');
+        abort_unless($this->user->can('permission.delete'), 403, 'Unauthorized');
 
         $permissions  = Permission::where('group_name', $group_name)->get();
         //dd($permissions);

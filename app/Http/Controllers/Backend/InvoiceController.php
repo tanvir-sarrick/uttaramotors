@@ -17,9 +17,19 @@ use Maatwebsite\Excel\Validators\ValidationException as ExcelValidationException
 
 class InvoiceController extends Controller
 {
+    protected $user;
+
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::user();
+            return $next($request);
+        });
+    }
+
     public function index(Request $request)
     {
-        abort_unless(Auth::user()->can('invoice.manage'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.manage'), 403, 'Unauthorized');
 
         try {
             $invoices = Invoice::with('dealer')
@@ -50,7 +60,7 @@ class InvoiceController extends Controller
 
     public function loadMoreData(Request $request)
     {
-        abort_unless(Auth::user()->can('invoice.manage'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.manage'), 403, 'Unauthorized');
         try {
             // Get input from a single filter input
             $filterData = $request->input('filterData');
@@ -98,7 +108,7 @@ class InvoiceController extends Controller
 
     public function filterData(Request $request)
     {
-        abort_unless(Auth::user()->can('invoice.manage'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.manage'), 403, 'Unauthorized');
 
         try {
             // Store the input value from 'filterData'
@@ -143,7 +153,7 @@ class InvoiceController extends Controller
 
     public function import_index()
     {
-        abort_unless(Auth::user()->can('invoice.import'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.import'), 403, 'Unauthorized');
 
         $userId = $userId = Auth::user()->id;
 
@@ -161,7 +171,7 @@ class InvoiceController extends Controller
 
     public function import(Request $request)
     {
-        abort_unless(Auth::user()->can('invoice.import'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.import'), 403, 'Unauthorized');
 
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls,xlsm|max:2048',
@@ -193,7 +203,7 @@ class InvoiceController extends Controller
 
     public function clear(Request $request)
     {
-        abort_unless(Auth::user()->can('invoice.import'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.import'), 403, 'Unauthorized');
 
         $userId = $userId = Auth::user()->id;
 
@@ -207,7 +217,7 @@ class InvoiceController extends Controller
 
     public function delete(Request $request)
     {
-        abort_unless(Auth::user()->can('invoice.delete'), 403, 'Unauthorized');
+        abort_unless($this->user->can('invoice.delete'), 403, 'Unauthorized');
 
         $invoice_number = $request->invoice_number;
 

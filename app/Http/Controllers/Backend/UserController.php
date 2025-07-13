@@ -11,9 +11,19 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+     protected $user;
+
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::user();
+            return $next($request);
+        });
+    }
+
     public function index(Request $request)
     {
-        abort_unless(Auth::user()->can('user.manage'), 403, 'Unauthorized');
+        abort_unless($this->user->can('user.manage'), 403, 'Unauthorized');
 
         try {
             $users = User::query()->orderBy('created_at', 'desc')->paginate(2);
@@ -29,7 +39,7 @@ class UserController extends Controller
 
     public function loadMoreUser(Request $request)
     {
-        abort_unless(Auth::user()->can('user.manage'), 403, 'Unauthorized');
+        abort_unless($this->user->can('user.manage'), 403, 'Unauthorized');
         try {
             $query = User::orderBy('created_at', 'desc');
 
@@ -67,7 +77,7 @@ class UserController extends Controller
 
     public function filterUserData(Request $request)
     {
-        abort_unless(Auth::user()->can('user.manage'), 403, 'Unauthorized');
+        abort_unless($this->user->can('user.manage'), 403, 'Unauthorized');
         try {
             $query = User::orderBy('created_at', 'desc');
 
@@ -105,7 +115,7 @@ class UserController extends Controller
 
     public function create()
     {
-        abort_unless(Auth::user()->can('user.create'), 403, 'Unauthorized');
+        abort_unless($this->user->can('user.create'), 403, 'Unauthorized');
 
         $all_roles = Role::all();
         return view('backend.pages.user.create', compact('all_roles'));
@@ -113,7 +123,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        abort_unless(Auth::user()->can('user.create'), 403, 'Unauthorized');
+        abort_unless($this->user->can('user.create'), 403, 'Unauthorized');
 
         // Validation Data
         $validate = $request->validate(
@@ -146,7 +156,7 @@ class UserController extends Controller
 
     public function edit($id)
     {
-        abort_unless(Auth::user()->can('user.edit'), 403, 'Unauthorized');
+        abort_unless($this->user->can('user.edit'), 403, 'Unauthorized');
 
         $user = User::find($id);
 
@@ -158,7 +168,7 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        abort_unless(Auth::user()->can('user.edit'), 403, 'Unauthorized');
+        abort_unless($this->user->can('user.edit'), 403, 'Unauthorized');
 
         $user   = User::find($id);
 
@@ -192,7 +202,7 @@ class UserController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        abort_unless(Auth::user()->can('user.delete'), 403, 'Unauthorized');
+        abort_unless($this->user->can('user.delete'), 403, 'Unauthorized');
 
         $user = User::findOrFail($id);
         //dd($user);

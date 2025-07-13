@@ -1,3 +1,6 @@
+@php
+    $user = Auth::guard('web')->user();
+@endphp
 <table class="datatables-customers table table-striped text-center">
     <thead class="table-dark">
         <tr>

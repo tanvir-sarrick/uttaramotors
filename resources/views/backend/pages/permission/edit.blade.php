@@ -1,6 +1,7 @@
 @extends('backend.layout.template')
 @section('title', 'Permission')
 @section('permission', 'active')
+@section('role_permission', 'active open')
 @section('style')
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css') }}">
     <link rel="stylesheet"

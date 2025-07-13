@@ -11,9 +11,19 @@ use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
+    protected $user;
+
+    public function __construct()
+    {
+         $this->middleware(function ($request, $next) {
+            $this->user = Auth::user();
+            return $next($request);
+        });
+    }
+
     public function index(Request $request)
     {
-        abort_unless(Auth::user()->can('role.manage'), 403, 'Unauthorized');
+        abort_unless($this->user->can('role.manage'), 403, 'Unauthorized');
 
         try {
             $all_roles = Role::query()->orderBy('created_at', 'desc');
@@ -36,7 +46,7 @@ class RoleController extends Controller
 
     public function create()
     {
-        abort_unless(Auth::user()->can('role.create'), 403, 'Unauthorized');
+        abort_unless($this->user->can('role.create'), 403, 'Unauthorized');
 
         $all_permissions = Permission::all();
         $permission_groups = User::getpermissionGroups();
@@ -47,7 +57,7 @@ class RoleController extends Controller
     public function store(Request $request)
     {
 
-        abort_unless(Auth::user()->can('role.create'), 403, 'Unauthorized');
+        abort_unless($this->user->can('role.create'), 403, 'Unauthorized');
 
         // Validation Data
         $validate = $request->validate(
@@ -72,7 +82,7 @@ class RoleController extends Controller
 
     public function edit($id)
     {
-        abort_unless(Auth::user()->can('role.edit'), 403, 'Unauthorized');
+        abort_unless($this->user->can('role.edit'), 403, 'Unauthorized');
 
         $role = Role::find($id);
 
@@ -86,7 +96,7 @@ class RoleController extends Controller
 
     public function update(Request $request, $id)
     {
-        abort_unless(Auth::user()->can('role.edit'), 403, 'Unauthorized');
+        abort_unless($this->user->can('role.edit'), 403, 'Unauthorized');
 
         // Validation Data
         $validate = $request->validate(
